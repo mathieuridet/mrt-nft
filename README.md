@@ -47,3 +47,20 @@ This project demonstrates:
 - OpenZeppelin (ERC-721, Royalty, Ownable)
 - Hardhat + Ethers v6
 - IPFS (folder-based metadata)
+
+---
+
+## Testing (Hardhat)
+
+I added unit tests with **chai** + **ethers v6** to validate core behavior:
+
+- ✅ Mint succeeds when sale is active; updates `totalSupply` and ownership  
+- ✅ Reverts on paused sale / zero quantity / over cap / insufficient ETH  
+- ✅ Refund path: contract retains only `mintPrice * quantity`  
+- ✅ `tokenURI(id)` builds the correct IPFS URL  
+- ✅ `withdraw` moves contract balance to owner  
+- ✅ `royaltyInfo` returns the right receiver/amount (e.g., 5% on 1 ETH)
+
+**Run tests**
+```bash
+npx hardhat test
