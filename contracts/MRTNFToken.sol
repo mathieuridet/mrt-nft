@@ -42,7 +42,6 @@ contract MRTNFToken is ERC721Royalty, Ownable, ReentrancyGuard, Pausable {
 
     // Allow user to mint a token (pay exact amount)
     function mint(uint256 quantity) external payable whenNotPaused nonReentrant {
-        require(saleActive, "SALE_NOT_ACTIVE");
         require(quantity > 0, "QTY_ZERO");
         require(totalSupply() + quantity <= MAX_SUPPLY, "MAX_SUPPLY");
         uint256 cost = mintPrice * quantity;        
