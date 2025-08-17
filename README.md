@@ -2,9 +2,9 @@
 
 Part of my blockchain portfolio. An ERC-721 NFT built with OpenZeppelin + Hardhat featuring a **paid mint**, **max supply cap**, **IPFS metadata**, and **EIP-2981 royalties**.
 
-- **Live (Sepolia):** `0x61cC98102E304DD5CCd3E019F7795CE6897FF4C7`
+- **Live (Sepolia):** `0xA401Fd2Ef678f15eB2485C4E79EF0bF3AFE35a57`
 - **Standard:** ERC-721
-- **Metadata baseURI:** `ipfs://bafybeihy2srvlpkoz42nhye4xq347pnr2htezqb4zl4xv2vwdxw4ejso3a/`
+- **Metadata baseURI:** `ipfs://bafybeifnle7syv4d4cxwad2wk2iti2ubaee57jvcfk46wbi6dswxpamoi4/`
 - **Mint price:** `0.02 ETH`
 - **Max supply:** `1000`
 - **Royalties:** `5%` to `0xbd187E110DBFc7Fdf9cCaF42786015b4160Ae3f2`
