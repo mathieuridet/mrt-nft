@@ -50,6 +50,13 @@ This project demonstrates:
 
 ---
 
+## Deployed networks
+
+- Sepolia: https://sepolia.etherscan.io/address/0xA401Fd2Ef678f15eB2485C4E79EF0bF3AFE35a57
+- Polygon Amoy: pending (skipped for now due to faucet balance)
+
+---
+
 ## Testing (Hardhat)
 
 I added unit tests with **chai** + **ethers v6** to validate core behavior:

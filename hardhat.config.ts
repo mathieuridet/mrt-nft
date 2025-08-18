@@ -8,6 +8,11 @@ module.exports = {
       url: process.env.SEPOLIA_RPC_URL,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
+    polygon_amoy: {
+      url: process.env.AMOY_RPC_URL || "https://rpc-amoy.polygon.technology",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 80002,
+    },
   },
   etherscan: { apiKey: process.env.ETHERSCAN_API_KEY },
 };
