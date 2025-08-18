@@ -36,6 +36,7 @@ This project demonstrates:
 
 - **Etherscan → Write**: connect a Sepolia wallet, call `mint(1)` and send exactly `0.02 ETH`.
 - **View metadata**: `tokenURI(1)` → `ipfs://<METADATA_CID>/1.json` (use a gateway if needed).
+- See **docs/DEV.md** for CLI scripts.
 
 > Tip: If `saleActive` is false, the tx reverts until I toggle it on.
 

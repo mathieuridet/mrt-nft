@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "node:nft:read": "node scripts/node/nft_read.js 1",
+    "node:nft:mint": "node scripts/node/nft_mint.js 1",
+    "node:nft:sale:on": "node scripts/node/nft_admin.js sale true",
+    "node:nft:sale:off": "node scripts/node/nft_admin.js sale false",
+    "node:nft:baseuri": "node scripts/node/nft_admin.js baseuri",
+    "node:nft:withdraw": "node scripts/node/nft_admin.js withdraw",
+    "node:nft:royalty": "node scripts/node/nft_admin.js royalty 1"
   },
   "keywords": [],
   "author": "",
