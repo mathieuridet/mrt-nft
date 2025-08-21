@@ -1,0 +1,27 @@
+{
+  "name": "Pug Rocket #1",
+  "description": "A cheerful pug rocketing into your heart. Part of the Canine Genesis set.",
+  "image": "ipfs://bafybeihvh2zvkrgzhqpwhpdss7qt2turhk6ebq6nqhqxf7y62xmzkiyoze/pug_rocket_card.png",
+  "attributes": [
+    {
+      "trait_type": "Breed (guess)",
+      "value": "Pug"
+    },
+    {
+      "trait_type": "Mood",
+      "value": "Happy"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Epic"
+    },
+    {
+      "trait_type": "Series",
+      "value": "Canine Genesis"
+    },
+    {
+      "trait_type": "Special",
+      "value": "Smile Boost"
+    }
+  ]
+}

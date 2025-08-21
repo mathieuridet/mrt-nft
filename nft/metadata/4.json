@@ -1,0 +1,27 @@
+{
+  "name": "Left Wing Lab #4",
+  "description": "Steady and focused\u2014left wing of the trio. Part of the Canine Genesis set.",
+  "image": "ipfs://bafybeihvh2zvkrgzhqpwhpdss7qt2turhk6ebq6nqhqxf7y62xmzkiyoze/left_wing_lab_card.png",
+  "attributes": [
+    {
+      "trait_type": "Breed (guess)",
+      "value": "Labrador Retriever (Black)"
+    },
+    {
+      "trait_type": "Mood",
+      "value": "Calm"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Uncommon"
+    },
+    {
+      "trait_type": "Series",
+      "value": "Canine Genesis"
+    },
+    {
+      "trait_type": "Role",
+      "value": "Left Wing"
+    }
+  ]
+}

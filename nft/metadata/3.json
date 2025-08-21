@@ -1,0 +1,27 @@
+{
+  "name": "Sunshine Lab #3",
+  "description": "Center stage in the trio, bathed in sunshine. Part of the Canine Genesis set.",
+  "image": "ipfs://bafybeihvh2zvkrgzhqpwhpdss7qt2turhk6ebq6nqhqxf7y62xmzkiyoze/sunshine_lab_card.png",
+  "attributes": [
+    {
+      "trait_type": "Breed (guess)",
+      "value": "Labrador Retriever (Yellow)"
+    },
+    {
+      "trait_type": "Mood",
+      "value": "Gentle"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Uncommon"
+    },
+    {
+      "trait_type": "Series",
+      "value": "Canine Genesis"
+    },
+    {
+      "trait_type": "Vibe",
+      "value": "Warm"
+    }
+  ]
+}

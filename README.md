@@ -2,10 +2,10 @@
 
 Part of my blockchain portfolio. An ERC-721 NFT built with OpenZeppelin + Hardhat featuring a **paid mint**, **max supply cap**, **IPFS metadata**, and **EIP-2981 royalties**.
 
-- **Live (Sepolia):** `0xA401Fd2Ef678f15eB2485C4E79EF0bF3AFE35a57`
+- **Live (Sepolia):** `0x06A23C76253C4c52B26A0045d537f9fE44b73aff`
 - **Standard:** ERC-721
-- **Metadata baseURI:** `ipfs://bafybeifnle7syv4d4cxwad2wk2iti2ubaee57jvcfk46wbi6dswxpamoi4/`
-- **Mint price:** `0.02 ETH`
+- **Metadata baseURI:** `ipfs://bafybeibg2zzka7rsdqskokjpcv4nwbx6hmw6tk56ppoojhsrbfcxi7oyuy/`
+- **Mint price:** `0.0001 ETH`
 - **Max supply:** `1000`
 - **Royalties:** `5%` to `0xbd187E110DBFc7Fdf9cCaF42786015b4160Ae3f2`
 
@@ -53,7 +53,7 @@ This project demonstrates:
 
 ## Deployed networks
 
-- Sepolia: https://sepolia.etherscan.io/address/0xA401Fd2Ef678f15eB2485C4E79EF0bF3AFE35a57
+- Sepolia: https://sepolia.etherscan.io/address/0x06A23C76253C4c52B26A0045d537f9fE44b73aff
 - Polygon Amoy: pending (skipped for now due to faucet balance)
 
 ---

@@ -1,5 +1,6 @@
 require("dotenv").config();
 require("@nomicfoundation/hardhat-toolbox");
+require("hardhat-abi-exporter");
 
 module.exports = {
   solidity: { version: "0.8.24", settings: { optimizer: { enabled: true, runs: 200 } } },
@@ -15,4 +16,12 @@ module.exports = {
     },
   },
   etherscan: { apiKey: process.env.ETHERSCAN_API_KEY },
+  abiExporter: [{
+    path: "frontend/app/abi",
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    only: ["MRTNFToken"],              // export just your NFT (optional)
+    format: "json"
+  }],
 };
