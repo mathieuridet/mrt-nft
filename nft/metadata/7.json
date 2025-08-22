@@ -1,0 +1,19 @@
+{
+  "name": "Artwork #7",
+  "description": "Original artwork #7. Stored on IPFS. CID folder: bafybeifaivbg3kytnxwutq6notntyzicjp2yu3waaubsmafhwmx3twblnu.",
+  "image": "ipfs://bafybeifaivbg3kytnxwutq6notntyzicjp2yu3waaubsmafhwmx3twblnu/7.png",
+  "attributes": [
+    {
+      "trait_type": "Format",
+      "value": "PNG"
+    },
+    {
+      "trait_type": "Dimensions",
+      "value": "1038x1290"
+    },
+    {
+      "trait_type": "Collection",
+      "value": "Personal Art"
+    }
+  ]
+}

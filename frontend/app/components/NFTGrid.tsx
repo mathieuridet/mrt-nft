@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 
 type NFT = {
   contract: { address: string };
@@ -86,9 +85,6 @@ export default function NFTGrid({ owner, network = "eth-sepolia" }: { owner?: st
               ) : (
                 <div style={{ height: 220, display: "grid", placeItems: "center", background: "#f3f4f6" }}>No image</div>
               )}
-              <figcaption style={{ padding: "8px 10px", fontSize: 14, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
-                {name}
-              </figcaption>
             </figure>
           );
         })}

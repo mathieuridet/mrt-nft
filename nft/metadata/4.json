@@ -1,27 +1,19 @@
 {
-  "name": "Left Wing Lab #4",
-  "description": "Steady and focused\u2014left wing of the trio. Part of the Canine Genesis set.",
-  "image": "ipfs://bafybeihvh2zvkrgzhqpwhpdss7qt2turhk6ebq6nqhqxf7y62xmzkiyoze/left_wing_lab_card.png",
+  "name": "Artwork #4",
+  "description": "Original artwork #4. Stored on IPFS. CID folder: bafybeifaivbg3kytnxwutq6notntyzicjp2yu3waaubsmafhwmx3twblnu.",
+  "image": "ipfs://bafybeifaivbg3kytnxwutq6notntyzicjp2yu3waaubsmafhwmx3twblnu/4.png",
   "attributes": [
     {
-      "trait_type": "Breed (guess)",
-      "value": "Labrador Retriever (Black)"
+      "trait_type": "Format",
+      "value": "PNG"
     },
     {
-      "trait_type": "Mood",
-      "value": "Calm"
+      "trait_type": "Dimensions",
+      "value": "1038x1290"
     },
     {
-      "trait_type": "Rarity",
-      "value": "Uncommon"
-    },
-    {
-      "trait_type": "Series",
-      "value": "Canine Genesis"
-    },
-    {
-      "trait_type": "Role",
-      "value": "Left Wing"
+      "trait_type": "Collection",
+      "value": "Personal Art"
     }
   ]
 }

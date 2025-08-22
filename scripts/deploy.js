@@ -4,7 +4,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   const initialOwner    = deployer.address;
-  const baseURI         = "ipfs://bafybeihnwfd72dlnig7oenkp6diopliayftrt3v4l57m55t5kviq4w2r2i/";
+  const baseURI         = "ipfs://bafybeigjn7mvb2k72jviz7x2ubzcrlufmeg7ra7bwglbzv6h5bg5uer2fi/";
   const maxSupply       = 1000;
   const mintPriceWei    = ethers.parseEther("0.0001");
   const royaltyReceiver = deployer.address;
