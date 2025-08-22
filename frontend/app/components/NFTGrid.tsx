@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
 type NFT = {
   contract: { address: string };
   tokenId: string;
   title?: string;
+  // v3 fields
+  image?: { cachedUrl?: string; thumbnailUrl?: string; pngUrl?: string; originalUrl?: string };
+  tokenUri?: { raw?: string; gateway?: string };
+  // legacy/v2-ish fields
   media?: { gateway?: string; raw?: string }[];
-  metadata?: { image?: string; name?: string };
+  metadata?: { image?: string; name?: string; image_url?: string };
 };
 
 function resolveIpfs(u?: string) {
@@ -16,7 +21,7 @@ function resolveIpfs(u?: string) {
     : u;
 }
 
-function pickImage(nft: NFTv3): string {
+function pickImage(nft: NFT): string {
   return (
     // Alchemy v3 preferred
     nft.image?.cachedUrl ||
@@ -33,7 +38,7 @@ function pickImage(nft: NFTv3): string {
   );
 }
 
-export default function NFTGrid({ owner, network = "eth-sepolia" }: { owner: string; network?: string }) {
+export default function NFTGrid({ owner, network = "eth-sepolia" }: { owner?: string; network?: string }) {
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -50,8 +55,9 @@ export default function NFTGrid({ owner, network = "eth-sepolia" }: { owner: str
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setNfts(data.ownedNfts || data.nfts || []);
-      } catch (e: any) {
-        setErr(e.message);
+      } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          setErr(msg);
       } finally {
         setLoading(false);
       }
@@ -76,7 +82,6 @@ export default function NFTGrid({ owner, network = "eth-sepolia" }: { owner: str
             <figure key={`${nft.contract.address}-${nft.tokenId}-${i}`}
                     style={{ borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,.08)", background: "#fff" }}>
               {img ? (
-                // Use <img> while testing; <Image> requires domain allowlisting.
                 <img src={img} alt={name} style={{ width: "100%", height: 220, objectFit: "cover" }} loading="lazy" />
               ) : (
                 <div style={{ height: 220, display: "grid", placeItems: "center", background: "#f3f4f6" }}>No image</div>

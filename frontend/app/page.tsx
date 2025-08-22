@@ -1,15 +1,14 @@
 "use client";
 import { useState, useMemo } from "react";
-import { useAccount, useWriteContract, useReadContract, useChainId } from "wagmi";
+import { useAccount, useWriteContract, useReadContract } from "wagmi";
 import abi from "./abi/MRTNFToken.json";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import NFTGrid from "./components/NFTGrid.tsx";
+import NFTGrid from "./components/NFTGrid";
 
 const addr = process.env.NEXT_PUBLIC_NFT_ADDRESS as `0x${string}`;
 
 export default function Page() {
-  const { address, isConnected, status } = useAccount();
-  const chainId = useChainId();
+  const { address, isConnected } = useAccount();
   const [qty, setQty] = useState(1);
   const { data: price } = useReadContract({ address: addr, abi, functionName: "mintPrice" });
   const { data: max } = useReadContract({ address: addr, abi, functionName: "MAX_SUPPLY" });
@@ -23,7 +22,7 @@ export default function Page() {
       query: { enabled: !!address && isConnected },
     });
 
-  const cost = useMemo(() => price ? (BigInt(price as any) * BigInt(qty)).toString() : "0", [price, qty]);
+  const cost = useMemo(() => price ? (BigInt(price as string) * BigInt(qty)).toString() : "0", [price, qty]);
 
   async function onMint() {
     await writeContractAsync({
@@ -51,7 +50,7 @@ export default function Page() {
             </p>
             <p>
               <span className="text-neutral-400">Supply:</span>{" "}
-              {(supply as any)?.toString() ?? "-"} / {(max as any)?.toString() ?? "-"}
+              {(supply)?.toString() ?? "-"} / {(max)?.toString() ?? "-"}
             </p>
             <p>
               <span className="text-neutral-400">Price:</span>{" "}
@@ -98,7 +97,7 @@ export default function Page() {
                 Connected: <code className="font-mono">{address}</code>
               </p>
               <p className="mt-2 text-neutral-400">
-                My NFTs ({(balance ?? 0n).toString()})
+                My NFTs ({(balance ?? 0).toString()})
               </p>
               <NFTGrid owner={address} network="eth-sepolia" />
             </>
