@@ -1,5 +1,9 @@
 # MRTNFToken — ERC-721 NFT (Sepolia)
 
+<img width="1437" height="783" alt="Capture d’écran 2025-08-22 à 12 21 05" src="https://github.com/user-attachments/assets/cd43ccca-733d-440d-bce6-45458129a547" />
+
+<br>
+
 Part of my blockchain portfolio. An ERC-721 NFT built with OpenZeppelin + Hardhat featuring a **paid mint**, **max supply cap**, **IPFS metadata**, and **EIP-2981 royalties**.
 
 - **Live (Sepolia):** `0xDa04b022149F4261be873b43E13d5913E5dc3757`
@@ -34,7 +38,8 @@ This project demonstrates:
 
 ## Try it quickly
 
-- **Etherscan → Write**: connect a Sepolia wallet, call `mint(1)` and send exactly `0.02 ETH`.
+- **Front-end**: access `https://mrt-nft.vercel.app/` and connect a Sepolia wallet to interact with the contract.
+- **Etherscan → Write**: connect a Sepolia wallet, call `mint(x)` and send x * `0.001 ETH`.
 - **View metadata**: `tokenURI(1)` → `ipfs://<METADATA_CID>/1.json` (use a gateway if needed).
 - See **docs/DEV.md** for CLI scripts.
 
@@ -48,6 +53,7 @@ This project demonstrates:
 - OpenZeppelin (ERC-721, Royalty, Ownable)
 - Hardhat + Ethers v6
 - IPFS (folder-based metadata)
+- Front-end with React and Next.js
 
 ---
 
