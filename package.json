@@ -18,9 +18,12 @@
   "description": "",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "autoprefixer": "^10.4.21",
     "dotenv": "^17.2.1",
     "hardhat": "^2.26.3",
-    "hardhat-abi-exporter": "^2.11.0"
+    "hardhat-abi-exporter": "^2.11.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
