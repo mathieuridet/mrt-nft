@@ -1,10 +1,14 @@
 # MRTNFToken — ERC-721 NFT (Sepolia)
 
+<img width="1437" height="783" alt="Capture d’écran 2025-08-22 à 12 21 05" src="https://github.com/user-attachments/assets/cd43ccca-733d-440d-bce6-45458129a547" />
+
+<br>
+
 Part of my blockchain portfolio. An ERC-721 NFT built with OpenZeppelin + Hardhat featuring a **paid mint**, **max supply cap**, **IPFS metadata**, and **EIP-2981 royalties**.
 
 - **Live (Sepolia):** `0x06A23C76253C4c52B26A0045d537f9fE44b73aff`
 - **Standard:** ERC-721
-- **Metadata baseURI:** `ipfs://bafybeibg2zzka7rsdqskokjpcv4nwbx6hmw6tk56ppoojhsrbfcxi7oyuy/`
+- **Metadata baseURI:** `ipfs://bafybeihnwfd72dlnig7oenkp6diopliayftrt3v4l57m55t5kviq4w2r2i/`
 - **Mint price:** `0.0001 ETH`
 - **Max supply:** `1000`
 - **Royalties:** `5%` to `0xbd187E110DBFc7Fdf9cCaF42786015b4160Ae3f2`
@@ -34,7 +38,8 @@ This project demonstrates:
 
 ## Try it quickly
 
-- **Etherscan → Write**: connect a Sepolia wallet, call `mint(1)` and send exactly `0.02 ETH`.
+- **Front-end**: access `https://mrt-nft.vercel.app/` and connect a Sepolia wallet to interact with the contract.
+- **Etherscan → Write**: connect a Sepolia wallet, call `mint(x)` and send x * `0.001 ETH`.
 - **View metadata**: `tokenURI(1)` → `ipfs://<METADATA_CID>/1.json` (use a gateway if needed).
 - See **docs/DEV.md** for CLI scripts.
 
@@ -48,6 +53,7 @@ This project demonstrates:
 - OpenZeppelin (ERC-721, Royalty, Ownable)
 - Hardhat + Ethers v6
 - IPFS (folder-based metadata)
+- Front-end with React and Next.js
 
 ---
 
