@@ -1,0 +1,21 @@
+{
+  "root": "0x40ed0f8b469b1fba8ff48bf032a2b9866dafa401c7b2deac1f075d72a18ea9b5",
+  "claims": [
+    {
+      "index": 0,
+      "account": "0xbd187E110DBFc7Fdf9cCaF42786015b4160Ae3f2",
+      "amount": "100000000000000000000",
+      "proof": [
+        "0xafe05c91f448e22c6495037ad6883ebf6ab7da69fce852ca942b42be4ac7d3ec"
+      ]
+    },
+    {
+      "index": 1,
+      "account": "0xE930572eEA58D85aBDA7FF4C53Ff865a2B94306D",
+      "amount": "50000000000000000000",
+      "proof": [
+        "0xc96016f2e620688a9d7255bb45389d652ccbd22cbce63202d873f3bf2a871b13"
+      ]
+    }
+  ]
+}

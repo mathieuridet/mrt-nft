@@ -78,3 +78,10 @@ I added unit tests with **chai** + **ethers v6** to validate core behavior:
 **Run tests**
 ```bash
 npx hardhat test
+
+
+
+
+Merkle Distributor : 0x8Da386F89CF7c876b3b66e56aFde97a96E216041
+Staking : 0xb50C5E37cE43F10Fc348E0F5eb5bc7e6a62294BF
+

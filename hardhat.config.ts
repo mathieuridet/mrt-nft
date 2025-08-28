@@ -17,11 +17,11 @@ module.exports = {
   },
   etherscan: { apiKey: process.env.ETHERSCAN_API_KEY },
   abiExporter: [{
-    path: "frontend/app/abi",
+    path: "frontend/abi",
     runOnCompile: true,
     clear: true,
     flat: true,
-    only: ["MRTNFToken"],              // export just your NFT (optional)
+    only: ["MRTNFToken", "MRToken", "MerkleDistributor", "SimpleStakingVault"],
     format: "json"
   }],
 };
