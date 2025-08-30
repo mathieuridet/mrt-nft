@@ -6,15 +6,10 @@ import {
   useReadContract,
   useWriteContract,
   useWaitForTransactionReceipt,
-  useConfig,
 } from "wagmi";
-import { simulateContract } from "wagmi/actions";
-import type { Abi, Hex } from "viem";
+import type { Abi } from "viem";
 import {
   formatUnits,
-  keccak256,
-  encodePacked,
-  concatHex,
 } from "viem";
 import DistributorAbi from "@/abi/MerkleDistributor.json";
 import { BaseError } from "viem";
@@ -49,7 +44,6 @@ const erc20Abi = [
 
 export default function ClaimPage() {
   const { address } = useAccount();
-  const wagmiConfig = useConfig();
 
   const [proofs, setProofs] = React.useState<ProofsFile | null>(null);
   const [entry, setEntry] = React.useState<ClaimEntry | null>(null);
@@ -90,12 +84,6 @@ export default function ClaimPage() {
     abi: DistributorAbi as Abi,
     functionName: "isClaimed",
     args: proofs && address ? [BigInt(proofs.round), address as `0x${string}`] : undefined,
-  });
-  const { data: distBal } = useReadContract({
-    address: TOKEN,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: [DISTRIBUTOR],
   });
 
   const human = entry && decimals != null ? formatUnits(BigInt(entry.amount), Number(decimals)) : null;
