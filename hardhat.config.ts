@@ -21,7 +21,7 @@ module.exports = {
     runOnCompile: true,
     clear: true,
     flat: true,
-    only: ["MRTNFToken", "MRToken", "MerkleDistributor", "SimpleStakingVault"],
+    only: ["MRTNFToken", "MRToken", "HourlyMerkleDistributor", "SimpleStakingVault"],
     format: "json"
   }],
 };

@@ -12,9 +12,9 @@
         "type": "address"
       },
       {
-        "internalType": "bytes32",
-        "name": "_merkleRoot",
-        "type": "bytes32"
+        "internalType": "uint256",
+        "name": "_rewardAmount",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -47,9 +47,9 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
+        "internalType": "uint64",
+        "name": "round",
+        "type": "uint64"
       },
       {
         "indexed": true,
@@ -87,11 +87,30 @@
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "newRoot",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint64",
+        "name": "newRound",
+        "type": "uint64"
+      }
+    ],
+    "name": "RootUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "r",
+        "type": "uint64"
       },
       {
         "internalType": "address",
@@ -117,9 +136,14 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
+        "internalType": "uint64",
+        "name": "r",
+        "type": "uint64"
+      },
+      {
+        "internalType": "address",
+        "name": "a",
+        "type": "address"
       }
     ],
     "name": "isClaimed",
@@ -180,6 +204,50 @@
       }
     ],
     "name": "rescue",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rewardAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "round",
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "newRoot",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint64",
+        "name": "newRound",
+        "type": "uint64"
+      }
+    ],
+    "name": "setRoot",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

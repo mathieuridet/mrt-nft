@@ -35,15 +35,10 @@ function getErrorMessage(e: unknown): string {
   return String(e);
 }
 
-type ClaimEntry = {
-  index: number;
-  account: `0x${string}`;
-  amount: string;                   // wei as string
-  proof: `0x${string}`[];
-};
-type ProofsFile = { root: `0x${string}`; claims: ClaimEntry[] };
+type ClaimEntry = { account: `0x${string}`; amount: string; proof: `0x${string}`[] };
+type ProofsFile = { round: number; root: `0x${string}`; claims: ClaimEntry[] };
 
-const FILE_PATH = "/claims/first.json"; // <-- keep in sync with your builder
+const FILE_PATH = "/claims/current.json"; // <-- keep in sync with your builder
 const DISTRIBUTOR = process.env.NEXT_PUBLIC_DISTRIBUTOR_ADDRESS as `0x${string}`;
 const TOKEN = process.env.NEXT_PUBLIC_TOKEN_ADDRESS as `0x${string}`;
 
@@ -94,8 +89,7 @@ export default function ClaimPage() {
     address: DISTRIBUTOR,
     abi: DistributorAbi as Abi,
     functionName: "isClaimed",
-    args: entry ? [BigInt(entry.index)] : undefined,
-    query: { enabled: !!entry },
+    args: proofs && address ? [BigInt(proofs.round), address as `0x${string}`] : undefined,
   });
   const { data: distBal } = useReadContract({
     address: TOKEN,
@@ -108,21 +102,6 @@ export default function ClaimPage() {
 
   const { writeContract, data: hash, isPending, error } = useWriteContract();
   const { isLoading: waiting, isSuccess } = useWaitForTransactionReceipt({ hash });
-
-  // Local Merkle check (OZ-style sorted pairs)
-  function verifyLocally(e: ClaimEntry, root: Hex) {
-    // leaf = keccak256(abi.encodePacked(index,address,uint256))
-    let computed = keccak256(
-      encodePacked(["uint256", "address", "uint256"], [BigInt(e.index), e.account, BigInt(e.amount)])
-    );
-    for (const p of e.proof) {
-      computed =
-        computed.toLowerCase() < p.toLowerCase()
-          ? keccak256(concatHex([computed, p]))
-          : keccak256(concatHex([p, computed]));
-    }
-    return computed === root;
-  }
 
   async function claim() {
     if (!entry || !proofs) return;
@@ -137,16 +116,12 @@ export default function ClaimPage() {
     if (!/^0x[0-9a-fA-F]{64}$/.test(proofs.root)) console.error("[claim] Bad root hex");
     if (!entry.proof.every(p => /^0x[0-9a-fA-F]{64}$/.test(p))) console.error("[claim] Bad proof element");
 
-    // Local proof verification
-    const okLocal = verifyLocally(entry, proofs.root);
-    console.log("[claim] local proof OK?:", okLocal);
-
     // Send tx
     writeContract({
       address: DISTRIBUTOR,
       abi: DistributorAbi as Abi,
       functionName: "claim",
-      args: [BigInt(entry.index), entry.account, BigInt(entry.amount), entry.proof],
+      args: [BigInt(proofs.round), address as `0x${string}`, BigInt(entry.amount), entry.proof],
     });
   }
 
