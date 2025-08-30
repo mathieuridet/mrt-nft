@@ -62,6 +62,9 @@ type ProofsPayload = {
   claims: Claim[];
 };
 
+type Hex = `0x${string}`;
+type Hex32 = Hex;
+
 const DIST_ABI = [
   "function token() view returns (address)",
   "function merkleRoot() view returns (bytes32)",
@@ -71,7 +74,7 @@ const DIST_ABI = [
 ] as const;
 
 const TRANSFER_SIG = ethers.id("Transfer(address,address,uint256)");
-const ZERO_TOPIC = ethers.zeroPadValue(ethers.ZeroAddress, 32);
+const ZERO32: Hex32 = ("0x" + "0".repeat(64)) as Hex32;
 
 function leafHash(account: `0x${string}`, amount: bigint, round: bigint) {
   return ethers.keccak256(
@@ -107,7 +110,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
       updated: false,
       count: 0,
       round: 0,
-      fileRoot: ZERO_TOPIC,
+      fileRoot: ZERO32,
       warn: warns.concat("Missing RPC/NFT/DISTRIBUTOR env"),
     };
   }
@@ -120,7 +123,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
       updated: false,
       count: 0,
       round: 0,
-      fileRoot: ZERO_TOPIC,
+      fileRoot: ZERO32,
       warn: warns.concat(`No contract bytecode at ${distributor}`),
     };
   }
@@ -153,7 +156,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
     address: nft,
     fromBlock,
     toBlock,
-    topics: [TRANSFER_SIG, ZERO_TOPIC], // topic1 = from == 0x0
+    topics: [TRANSFER_SIG, ZERO32], // topic1 = from == 0x0
   });
 
   const minters = new Set<string>();
@@ -177,7 +180,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
   if (addresses.length === 0) {
     const payload: ProofsPayload = {
       round: Number(round),
-      root: ZERO_TOPIC,
+      root: ZERO32,
       claims: [],
     };
     let blobUrl: string | undefined;
@@ -199,6 +202,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
           addRandomSuffix: false,
           contentType: "application/json",
           token: process.env.BLOB_READ_WRITE_TOKEN, // omit if Integration is wired
+          allowOverwrite: true
         });
         blobUrl = res.url;
         console.log("Blob URL:", blobUrl);
@@ -213,7 +217,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
       reason: "empty",
       count: 0,
       round: Number(round),
-      fileRoot: ZERO_TOPIC,
+      fileRoot: ZERO32,
       onchainRoot,
       blobUrl,
       localPath,
@@ -260,6 +264,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
         addRandomSuffix: false,
         contentType: "application/json",
         token: process.env.BLOB_READ_WRITE_TOKEN, // omit if Integration is wired
+        allowOverwrite: true
       });
       blobUrl = res.url;
     } catch (e) {
