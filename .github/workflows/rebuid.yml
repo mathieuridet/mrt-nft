@@ -1,0 +1,22 @@
+name: Rebuild Merkle Root
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes; adjust as you like
+  workflow_dispatch:          # allow manual runs
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call /api/rebuild
+        env:
+          API_URL: https://mrt-nft.vercel.app/api/rebuild
+          REBUILD_TOKEN: ${{ secrets.REBUILD_TOKEN }}
+        run: |
+          set -e
+          echo "POST $API_URL"
+          curl -sS -X POST "$API_URL" \
+            -H "Authorization: Bearer $REBUILD_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data '{}' | tee response.json
+          echo "::notice title=Rebuild response::$(cat response.json)"
