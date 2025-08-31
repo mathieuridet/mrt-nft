@@ -1,13 +1,23 @@
 name: Rebuild Merkle Root
 on:
   schedule:
-    - cron: "*/10 * * * *"   # every 10 minutes; adjust as you like
-  workflow_dispatch:          # allow manual runs
+    - cron: "*/5 * * * *"     # every 5 min UTC
+  workflow_dispatch: {}        # run manually
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rebuild-merkle-root
+  cancel-in-progress: false
 
 jobs:
-  ping:
+  rebuild:
     runs-on: ubuntu-latest
     steps:
+      - name: Timestamp (UTC)
+        run: echo "UTC: $(date -u +%FT%TZ)"
+
       - name: Call /api/rebuild
         env:
           API_URL: https://mrt-nft.vercel.app/api/rebuild
@@ -15,8 +25,11 @@ jobs:
         run: |
           set -e
           echo "POST $API_URL"
-          curl -sS -X POST "$API_URL" \
+          # -f makes curl fail the step on HTTP >= 400 so you see a red run
+          curl -sSf -X POST "$API_URL" \
             -H "Authorization: Bearer $REBUILD_TOKEN" \
             -H "Content-Type: application/json" \
-            --data '{}' | tee response.json
-          echo "::notice title=Rebuild response::$(cat response.json)"
+            --data '{}' \
+            -w "\nHTTP %{http_code}\n" \
+            | tee response.txt
+          echo "::notice title=Rebuild response::$(cat response.txt)"
