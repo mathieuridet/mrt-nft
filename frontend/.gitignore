@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Otherwise the prod app reads this file instead of the Vercel Blob's one
+/public/claims/current.json
