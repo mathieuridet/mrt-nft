@@ -102,7 +102,7 @@ async function getLogsInChunks(
     const CHUNK_SIZE = 10; // Free tier limit
 
     for (let start = fromBlock; start <= toBlock; start += CHUNK_SIZE) {
-        const end = Math.min(start + CHUNK_SIZE, toBlock);
+        const end = Math.min(start + CHUNK_SIZE - 1, toBlock);
 
         const chunkLogs = await provider.send("eth_getLogs", [
             {
