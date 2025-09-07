@@ -14,6 +14,13 @@ import {
 import DistributorAbi from "@/abi/MerkleDistributor.json";
 import { BaseError } from "viem";
 
+function fmtAmount(base: string, decimals: number, maxFrac = 6): string {
+  const s = formatUnits(BigInt(base), decimals);
+  const [i, f = ""] = s.split(".");
+  const f2 = f.slice(0, maxFrac).replace(/0+$/, "");
+  return f2 ? `${i}.${f2}` : i;
+}
+
 function getErrorMessage(e: unknown): string {
   if (!e) return "";
   // Viem/Wagmi errors
@@ -93,7 +100,8 @@ export default function ClaimPage() {
     args: proofs && address ? [BigInt(proofs.round), address as `0x${string}`] : undefined,
   });
 
-  const human = entry && decimals != null ? formatUnits(BigInt(entry.amount), Number(decimals)) : null;
+  const tokenDecimals = (typeof decimals === "number" ? decimals : 18);
+  const pretty = entry ? fmtAmount(entry.amount, tokenDecimals) : null;
 
   const { writeContract, data: hash, isPending, error } = useWriteContract();
   const { isLoading: waiting, isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -130,7 +138,7 @@ export default function ClaimPage() {
 
       {address && entry && (
         <div className="rounded-xl border p-4 space-y-2">
-          <div><b>Eligible:</b> {human ?? entry.amount} MRT</div>
+          <div><b>Eligible:</b> {pretty ?? "…"} MRT</div>
           <div><b>Status:</b> {claimed ? "Already claimed" : (waiting || isPending ? "Claiming…" : "Unclaimed")}</div>
 
           <details className="text-xs">
