@@ -33,7 +33,9 @@ function getErrorMessage(e: unknown): string {
 type ClaimEntry = { account: `0x${string}`; amount: string; proof: `0x${string}`[] };
 type ProofsFile = { round: number; root: `0x${string}`; claims: ClaimEntry[] };
 
-const FILE_PATH = "/claims/current.json"; // <-- keep in sync with your builder
+const FILE_PATH =
+  process.env.NEXT_PUBLIC_CLAIMS_URL ?? "/claims/current.json";
+console.log("[claim] FILE_PATH =", FILE_PATH);
 const DISTRIBUTOR = process.env.NEXT_PUBLIC_DISTRIBUTOR_ADDRESS as `0x${string}`;
 const TOKEN = process.env.NEXT_PUBLIC_TOKEN_ADDRESS as `0x${string}`;
 
