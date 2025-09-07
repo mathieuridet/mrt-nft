@@ -55,6 +55,11 @@ export default function ClaimPage() {
         const url = `${FILE_PATH}?v=${Date.now()}`;
         console.log("[claim] fetching file:", url);
         const r = await fetch(url, { cache: "no-store" });
+        if (!r.ok) {
+          console.error(`[claim] ${url} → HTTP ${r.status}`);
+          setProofs(null);
+          return;
+        }
         const j: ProofsFile = await r.json();
         console.log("[claim] file root:", j.root);
         console.log("[claim] claims count:", j.claims.length);
