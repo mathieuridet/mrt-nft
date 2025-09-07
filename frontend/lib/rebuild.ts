@@ -91,6 +91,35 @@ function errorMessage(e: unknown): string {
   try { return JSON.stringify(e); } catch { return String(e); }
 }
 
+async function getLogsInChunks(
+    provider: JsonRpcProvider,
+    address: string,
+    fromBlock: number,
+    toBlock: number,
+    topics: string[]
+) {
+    const logs: ethers.Log[] = [];
+    const CHUNK_SIZE = 10; // Free tier limit
+
+    for (let start = fromBlock; start <= toBlock; start += CHUNK_SIZE) {
+        const end = Math.min(start + CHUNK_SIZE - 1, toBlock);
+
+        const chunkLogs = await provider.send("eth_getLogs", [
+            {
+                address,
+                fromBlock: `0x${start.toString(16)}`,
+                toBlock: `0x${end.toString(16)}`,
+                topics,
+            },
+        ]);
+
+        logs.push(...chunkLogs);
+    }
+
+    return logs;
+}
+
+
 export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<RebuildResult> {
   const warns: string[] = [];
 
@@ -152,12 +181,13 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
   const toBlock = await provider.getBlockNumber();
   const fromBlock = Math.max(0, toBlock - blocksPerHour);
 
-  const logs = await provider.getLogs({
-    address: nft,
-    fromBlock,
-    toBlock,
-    topics: [TRANSFER_SIG, ZERO32], // topic1 = from == 0x0
-  });
+    const logs = await getLogsInChunks(
+        provider,
+        nft,
+        fromBlock,
+        toBlock,
+        [TRANSFER_SIG, ZERO32]
+    );
 
   const minters = new Set<string>();
   for (const log of logs) {
