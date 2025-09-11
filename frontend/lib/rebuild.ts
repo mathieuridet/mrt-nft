@@ -1,13 +1,9 @@
-// Recomputes Merkle proofs for "addresses that minted an NFT in the last hour",
-// writes current.json (locally in dev, Blob in prod), and pushes the root on-chain
-// when it changed.
-
 import fs from "node:fs";
 import path from "node:path";
 import { put } from "@vercel/blob";
 import { MerkleTree } from "merkletreejs";
 import keccak256 from "keccak256";
-import { ethers, JsonRpcProvider, Wallet, Contract } from "ethers";
+import { ethers, JsonRpcProvider, Contract } from "ethers";
 
 type RebuildOptions = {
   rpcUrl?: string;
@@ -16,14 +12,12 @@ type RebuildOptions = {
   blocksPerHour?: number;
   outPath?: string;
   blobKey?: string;
-  pk?: string;
 };
 
 type RebuildResult = {
   ok: boolean;
   updated: boolean;
-  reason?: string;
-  txHash?: string;
+  reason?: "empty" | "unchanged";
   count: number;
   round: number;
   fileRoot: `0x${string}`;
@@ -45,20 +39,17 @@ type ProofsPayload = {
   claims: Claim[];
 };
 
-type Hex = `0x${string}`;
-type Hex32 = Hex;
+type Hex32 = `0x${string}`;
 
 const DIST_ABI = [
   "function token() view returns (address)",
   "function merkleRoot() view returns (bytes32)",
   "function round() view returns (uint64)",
   "function rewardAmount() view returns (uint256)",
-  "function setRoot(bytes32,uint64) external",
 ] as const;
 
 const TRANSFER_SIG = ethers.id("Transfer(address,address,uint256)");
 const ZERO32: Hex32 = ("0x" + "0".repeat(64)) as Hex32;
-const DUMMY_ROOT: Hex32 = ethers.keccak256(ethers.toUtf8Bytes("empty")) as Hex32;
 
 function leafHash(account: `0x${string}`, amount: bigint, round: bigint) {
   return ethers.keccak256(
@@ -84,7 +75,6 @@ async function getLogsInChunks(
 ) {
   const logs: ethers.Log[] = [];
   const CHUNK_SIZE = 10;
-
   for (let start = fromBlock; start <= toBlock; start += CHUNK_SIZE) {
     const end = Math.min(start + CHUNK_SIZE - 1, toBlock);
     const chunkLogs = await provider.send("eth_getLogs", [
@@ -109,7 +99,6 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
   const blocksPerHour = opts.blocksPerHour ?? Number(process.env.BLOCKS_PER_HOUR ?? 300);
   const outPath = opts.outPath ?? path.join(process.cwd(), "public", "claims", "current.json");
   const blobKey = opts.blobKey ?? "claims/current.json";
-  const pk = opts.pk ?? process.env.PRIVATE_KEY;
 
   if (!rpcUrl || !nft || !distributor) {
     return { ok: false, updated: false, count: 0, round: 0, fileRoot: ZERO32, warn: ["Missing RPC/NFT/DISTRIBUTOR env"] };
@@ -121,9 +110,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
     return { ok: false, updated: false, count: 0, round: 0, fileRoot: ZERO32, warn: [`No contract bytecode at ${distributor}`] };
   }
 
-  const signer = pk ? new Wallet(pk, provider) : undefined;
-  const dist = new Contract(distributor, DIST_ABI, signer ?? provider);
-
+  const dist = new Contract(distributor, DIST_ABI, provider);
   const [onchainRoot, onchainRound, onchainReward] = await Promise.all([
     dist.merkleRoot(),
     dist.round(),
@@ -133,7 +120,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
   let rewardAmount = onchainReward;
   if (rewardAmount === 0n) {
     const fallback = ethers.parseUnits(process.env.REWARD_AMOUNT || "5", 18);
-    warns.push(`On-chain rewardAmount is 0; using fallback ${fallback.toString()} wei from REWARD_AMOUNT.`);
+    warns.push(`On-chain rewardAmount is 0; using fallback ${fallback.toString()}`);
     rewardAmount = fallback;
   }
 
@@ -150,16 +137,11 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
   const round = BigInt(Math.floor(Date.now() / 1000 / 3600));
   const addresses = Array.from(minters).sort();
 
-  const isVercel = !!process.env.VERCEL;
-  const isProd = process.env.NODE_ENV === "production";
-  const shouldWriteLocal = process.env.WRITE_LOCAL === "1" || !isVercel || !isProd;
-  const shouldUseBlob = isVercel || !!process.env.BLOB_READ_WRITE_TOKEN;
-
-  // Always produce a root (dummy if empty)
   let fileRoot: Hex32;
   let claims: Claim[];
+
   if (addresses.length === 0) {
-    fileRoot = DUMMY_ROOT;
+    fileRoot = ZERO32;
     claims = [];
   } else {
     const leaves = addresses.map((a) =>
@@ -174,12 +156,12 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
     }));
   }
 
-  // Write JSON
-  let blobUrl: string | undefined;
-  let localPath: string | undefined;
   const payloadStr = JSON.stringify({ round: Number(round), root: fileRoot, claims }, null, 2);
 
-  if (shouldWriteLocal) {
+  let blobUrl: string | undefined;
+  let localPath: string | undefined;
+
+  if (process.env.WRITE_LOCAL === "1" || !process.env.VERCEL || process.env.NODE_ENV !== "production") {
     try {
       fs.mkdirSync(path.dirname(outPath), { recursive: true });
       fs.writeFileSync(outPath, payloadStr);
@@ -188,37 +170,34 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
       warns.push(`Local write failed: ${errorMessage(e)}`);
     }
   }
-  if (shouldUseBlob) {
-    try {
-      const res = await put(blobKey, payloadStr, {
-        access: "public",
-        addRandomSuffix: false,
-        contentType: "application/json",
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-        allowOverwrite: true,
-      });
-      blobUrl = res.url;
-    } catch (e) {
-      warns.push(`Blob upload failed: ${errorMessage(e)}`);
-    }
+
+  try {
+    const res = await put(blobKey, payloadStr, {
+      access: "public",
+      addRandomSuffix: false,
+      contentType: "application/json",
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      allowOverwrite: true,
+    });
+    blobUrl = res.url;
+  } catch (e) {
+    warns.push(`Blob upload failed: ${errorMessage(e)}`);
   }
 
-  // Decide if update is needed
   const needUpdate =
     fileRoot.toLowerCase() !== (onchainRoot as string).toLowerCase() ||
     round > onchainRound;
 
-  if (!needUpdate) {
-    return { ok: true, updated: false, reason: "unchanged", count: addresses.length, round: Number(round), fileRoot, onchainRoot, blobUrl, localPath, warn: warns.length ? warns : undefined };
-  }
-
-  if (!signer) {
-    return { ok: true, updated: false, reason: "no-signer", count: addresses.length, round: Number(round), fileRoot, onchainRoot, blobUrl, localPath, warn: warns.concat("No PRIVATE_KEY provided; skipped setRoot") };
-  }
-
-  // Push root on-chain (dummy or real)
-  const tx = await dist.setRoot(fileRoot, round);
-  const rcpt = await tx.wait();
-
-  return { ok: true, updated: true, reason: "pushed", txHash: rcpt?.hash, count: addresses.length, round: Number(round), fileRoot, onchainRoot, blobUrl, localPath, warn: warns.length ? warns : undefined };
+  return {
+    ok: true,
+    updated: needUpdate,
+    reason: addresses.length === 0 ? "empty" : needUpdate ? "unchanged" : "unchanged",
+    count: addresses.length,
+    round: Number(round),
+    fileRoot,
+    onchainRoot,
+    blobUrl,
+    localPath,
+    warn: warns.length ? warns : undefined,
+  };
 }
