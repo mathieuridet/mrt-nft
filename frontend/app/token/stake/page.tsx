@@ -5,6 +5,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import type { Abi } from "viem";
 import StakingAbi from "@/abi/SimpleStakingVault.json";
 import { formatUnits, parseUnits } from "viem";
+import { EmptyState, Spinner, StatusBadge, Stat, Banner, SkeletonBlock } from "@/app/components/Helpers";
 
 const STAKING = process.env.NEXT_PUBLIC_STAKING_ADDRESS as `0x${string}`;
 const TOKEN   = process.env.NEXT_PUBLIC_TOKEN_ADDRESS as `0x${string}`;
@@ -80,46 +81,126 @@ export default function StakePage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto space-y-4">
-      <h1 className="text-2xl font-bold">Stake TOKEN</h1>
-      {!address && <p>Connect wallet to stake.</p>}
+    <div className="min-h-screen bg-black text-zinc-200 py-10 px-4">
+      <div className="max-w-xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            <span className="bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
+              Stake MRT
+            </span>
+          </h1>
+          <p className="text-zinc-400 mt-1">
+            Stake your tokens to earn rewards. You can unstake or claim rewards anytime.
+          </p>
+        </div>
 
-      {address && (
-        <>
-          <div className="rounded-xl border p-4 space-y-2">
-            <div><b>Wallet:</b> {decimals!=null ? formatUnits((walletBal as bigint ?? 0n), Number(decimals)) : "…"}</div>
-            <div><b>Staked:</b> {decimals!=null ? formatUnits((stakedBal as bigint ?? 0n), Number(decimals)) : "…"}</div>
-            <div><b>Earned:</b> {decimals!=null ? formatUnits((earned as bigint ?? 0n), Number(decimals)) : "…"}</div>
-          </div>
-
-          <div className="rounded-xl border p-4 space-y-3">
-            <input
-              className="w-full border rounded px-3 py-2"
-              placeholder="Amount"
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              inputMode="decimal"
-            />
-            {needsApprove ? (
-              <button className="px-4 py-2 rounded bg-black text-white disabled:opacity-50"
-                      onClick={doApprove} disabled={isPending || waiting}>
-                {isPending || waiting ? "Approving…" : "Approve"}
-              </button>
-            ) : (
-              <button className="px-4 py-2 rounded bg-black text-white disabled:opacity-50"
-                      onClick={doStake} disabled={isPending || waiting}>
-                {isPending || waiting ? "Staking…" : "Stake"}
-              </button>
+        {/* Card */}
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 shadow-2xl backdrop-blur-sm">
+          <div className="p-5 sm:p-6 space-y-5">
+            {/* Wallet connection state */}
+            {!address && (
+              <EmptyState
+                title="Connect your wallet"
+                subtitle="You need to connect your wallet to stake tokens."
+              />
             )}
-            <div className="flex gap-2">
-              <button className="px-4 py-2 rounded border" onClick={doUnstake} disabled={isPending || waiting}>Unstake</button>
-              <button className="px-4 py-2 rounded border" onClick={doClaim} disabled={isPending || waiting}>Claim rewards</button>
-            </div>
-            {isSuccess && <div className="text-green-600">✅ Tx confirmed: {txHash?.slice(0,10)}…</div>}
-            {error && <div className="text-red-600 text-sm">Error: {String(error?.message || error)}</div>}
+
+            {address && (
+              <>
+                {/* Balances */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <Stat
+                    label="Wallet"
+                    value={
+                      decimals != null
+                        ? `${formatUnits(walletBal ?? 0n, Number(decimals))} MRT`
+                        : "…"
+                    }
+                  />
+                  <Stat
+                    label="Staked"
+                    value={
+                      decimals != null
+                        ? `${formatUnits(stakedBal ?? 0n, Number(decimals))} MRT`
+                        : "…"
+                    }
+                  />
+                  <Stat
+                    label="Earned"
+                    value={
+                      decimals != null
+                        ? `${formatUnits(earned ?? 0n, Number(decimals))} MRT`
+                        : "…"
+                    }
+                  />
+                </div>
+
+                {/* Stake form */}
+                <div className="space-y-4 pt-2">
+                  <input
+                    className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Amount to stake"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    inputMode="decimal"
+                  />
+
+                  {needsApprove ? (
+                    <button
+                      onClick={doApprove}
+                      disabled={isPending || waiting}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60 bg-gradient-to-r from-indigo-500 to-fuchsia-600 hover:from-indigo-400 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
+                      aria-busy={waiting || isPending}
+                    >
+                      {isPending || waiting ? "Approving…" : "Approve"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={doStake}
+                      disabled={isPending || waiting}
+                      className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60 bg-gradient-to-r from-indigo-500 to-fuchsia-600 hover:from-indigo-400 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
+                      aria-busy={waiting || isPending}
+                    >
+                      {isPending || waiting ? "Staking…" : "Stake"}
+                    </button>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={doUnstake}
+                      disabled={isPending || waiting}
+                      className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
+                    >
+                      Unstake
+                    </button>
+                    <button
+                      onClick={doClaim}
+                      disabled={isPending || waiting}
+                      className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
+                    >
+                      Claim rewards
+                    </button>
+                  </div>
+
+                  {/* Success / Error */}
+                  {isSuccess && (
+                    <Banner tone="success">
+                      ✅ Transaction confirmed: {txHash?.slice(0, 10)}…
+                    </Banner>
+                  )}
+                  {error && (
+                    <Banner tone="error">
+                      <b>Error:</b> {String(error?.message || error)}
+                    </Banner>
+                  )}
+                </div>
+              </>
+            )}
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
+
 }

@@ -3,6 +3,7 @@ import { useState, useMemo } from "react";
 import { useAccount, useWriteContract, useReadContract } from "wagmi";
 import abi from "../../abi/MRTNFToken.json";
 import NFTGrid from "../components/NFTGrid";
+import { EmptyState, Spinner, StatusBadge, Stat, Banner, SkeletonBlock } from "@/app/components/Helpers";
 
 const addr = process.env.NEXT_PUBLIC_NFT_ADDRESS as `0x${string}`;
 
@@ -34,75 +35,105 @@ export default function Page() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-neutral-950 to-neutral-900 text-neutral-100">
-      <div className="mx-auto max-w-xl px-6 py-10">
-        <section className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl backdrop-blur">
-          <div className="space-y-2 text-sm">
-            <p className="truncate">
-              <span className="text-neutral-400">Contract:</span>{" "}
-              <span className="font-mono">{addr}</span>
-            </p>
-            <p>
-              <span className="text-neutral-400">Supply:</span>{" "}
-              {(supply)?.toString() ?? "-"} / {(max)?.toString() ?? "-"}
-            </p>
-            <p>
-              <span className="text-neutral-400">Price:</span>{" "}
-              {price ? `${Number(price) / 1e18} ETH` : "-"}
-            </p>
+    <div className="min-h-screen bg-black text-zinc-200 py-10 px-4">
+      <div className="max-w-xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            <span className="bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
+              Mint MRTNFT
+            </span>
+          </h1>
+          <p className="text-zinc-400 mt-1">
+            Mint your MRT NFT directly from the contract.
+          </p>
+        </div>
+
+        {/* Card */}
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 shadow-2xl backdrop-blur-sm">
+          <div className="p-5 sm:p-6 space-y-5">
+            {/* Contract info */}
+            <div className="space-y-1 text-sm">
+              <p className="truncate">
+                <span className="text-zinc-400">Contract:</span>{" "}
+                <span className="font-mono text-zinc-200">{addr}</span>
+              </p>
+              <p>
+                <span className="text-zinc-400">Supply:</span>{" "}
+                {(supply ?? "-").toString()} / {(max ?? "-").toString()}
+              </p>
+              <p>
+                <span className="text-zinc-400">Price:</span>{" "}
+                {price ? `${Number(price) / 1e18} ETH` : "-"}
+              </p>
+            </div>
+
+            {/* Minting states */}
+            {!isConnected && (
+              <EmptyState
+                title="Connect your wallet"
+                subtitle="You need to connect your wallet to mint NFTs."
+              />
+            )}
+
+            {isConnected && (
+              <>
+                {/* Quantity & Mint action */}
+                <div className="grid gap-3 sm:grid-cols-[auto,1fr,auto] items-center">
+                  <label
+                    htmlFor="qty"
+                    className="text-sm text-zinc-400"
+                  >
+                    Quantity
+                  </label>
+                  <input
+                    id="qty"
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={qty}
+                    onChange={(e) =>
+                      setQty(Math.max(1, Number(e.target.value)))
+                    }
+                    className="w-24 rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-right font-mono text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
+                  />
+                  <button
+                    disabled={!price || isPending}
+                    onClick={onMint}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60 bg-gradient-to-r from-indigo-500 to-fuchsia-600 hover:from-indigo-400 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
+                    aria-busy={isPending}
+                  >
+                    {isPending ? "Minting…" : `Mint ${qty}`}
+                  </button>
+                </div>
+
+                {/* Cost */}
+                <p className="text-sm text-zinc-400">
+                  Total cost:{" "}
+                  <span className="font-mono text-zinc-200">
+                    {price ? (Number(price) * qty) / 1e18 : 0} ETH
+                  </span>
+                </p>
+
+                {/* Connected details */}
+                <div className="pt-3 space-y-2 text-xs text-zinc-500">
+                  <p>
+                    Connected:{" "}
+                    <code className="font-mono">{address}</code>
+                  </p>
+                  <p className="text-zinc-400">
+                    My NFTs ({(balance ?? 0).toString()})
+                  </p>
+                </div>
+
+                {/* NFT grid */}
+                <NFTGrid owner={address} network="eth-sepolia" />
+              </>
+            )}
           </div>
-
-          {isConnected ? (
-            <>
-              <div className="mt-6 grid gap-3 sm:grid-cols-[auto,1fr,auto]">
-                <label
-                  htmlFor="qty"
-                  className="self-center text-sm text-neutral-400"
-                >
-                  Quantity
-                </label>
-                <input
-                  id="qty"
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={qty}
-                  onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
-                  className="w-24 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-right font-mono outline-none ring-0 transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/40"
-                />
-                <button
-                  disabled={!price || isPending}
-                  onClick={onMint}
-                  className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 font-medium transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isPending ? "Minting..." : `Mint ${qty}`}
-                </button>
-              </div>
-
-              <p className="mt-4 text-sm text-neutral-400">
-                Total cost:{" "}
-                <span className="font-mono text-neutral-100">
-                  {price ? (Number(price) * qty) / 1e18 : 0} ETH
-                </span>
-              </p>
-
-              <br/>
-              <p className="mt-2 text-xs text-neutral-500">
-                Connected: <code className="font-mono">{address}</code>
-              </p>
-              <p className="mt-2 text-neutral-400">
-                My NFTs ({(balance ?? 0).toString()})
-              </p>
-              <NFTGrid owner={address} network="eth-sepolia" />
-            </>
-          ) : (
-            <p className="mt-6 text-sm text-neutral-400">
-              Connect your wallet to mint.
-            </p>
-          )}
-        </section>
+        </div>
       </div>
-    </main>
-);
+    </div>
+  );
 
 }

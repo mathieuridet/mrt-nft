@@ -8,7 +8,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 const links = [
   { href: "/nft", label: "NFT" },
   { href: "/token/claim", label: "Claim" },
-  /*{ href: "/token/stake", label: "Stake" },*/
+  { href: "/token/stake", label: "Stake" },
 ];
 
 export default function NavBar() {
