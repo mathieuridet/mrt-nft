@@ -92,12 +92,6 @@ jobs:
             exit 0
           fi
       
-          # Optional: also skip if there are literally zero claims
-          if [[ "${CLAIMS_CT}" == "0" ]]; then
-            echo "claims[] is empty — skipping setRoot()."
-            exit 0
-          fi
-      
           # Read on-chain state
           onRoot=$(cast call "$CONTRACT" "merkleRoot()(bytes32)" --rpc-url "$RPC_URL")
           onRound=$(cast call "$CONTRACT" "round()(uint64)" --rpc-url "$RPC_URL")
