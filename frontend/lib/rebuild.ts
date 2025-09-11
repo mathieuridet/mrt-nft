@@ -168,9 +168,9 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
     const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
     fileRoot = ("0x" + tree.getRoot().toString("hex")) as Hex32;
     claims = addresses.map((account, i) => ({
-      account,
+      account: account as `0x${string}`,
       amount: rewardAmount.toString(),
-      proof: tree.getHexProof(leaves[i]) as `0x${string}`[],
+      proof: tree.getHexProof(leaves[i]).map((p) => p as `0x${string}`),
     }));
   }
 
