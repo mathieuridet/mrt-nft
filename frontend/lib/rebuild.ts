@@ -50,6 +50,7 @@ const DIST_ABI = [
 
 const TRANSFER_SIG = ethers.id("Transfer(address,address,uint256)");
 const ZERO32: Hex32 = ("0x" + "0".repeat(64)) as Hex32;
+const DUMMY_ROOT = ethers.keccak256(ethers.toUtf8Bytes("empty"));
 
 function leafHash(account: `0x${string}`, amount: bigint, round: bigint) {
   return ethers.keccak256(
@@ -141,7 +142,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
   let claims: Claim[];
 
   if (addresses.length === 0) {
-    fileRoot = ZERO32;
+    fileRoot = DUMMY_ROOT;
     claims = [];
   } else {
     const leaves = addresses.map((a) =>
