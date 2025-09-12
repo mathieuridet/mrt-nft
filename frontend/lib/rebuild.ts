@@ -50,7 +50,7 @@ const DIST_ABI = [
 
 const TRANSFER_SIG = ethers.id("Transfer(address,address,uint256)");
 const ZERO32: Hex32 = ("0x" + "0".repeat(64)) as Hex32;
-const DUMMY_ROOT = ethers.keccak256(ethers.toUtf8Bytes("empty"));
+const DUMMY_ROOT: Hex32 = ethers.keccak256(ethers.toUtf8Bytes("empty")) as Hex32;
 
 function leafHash(account: `0x${string}`, amount: bigint, round: bigint) {
   return ethers.keccak256(
