@@ -64,6 +64,11 @@ jobs:
           root=$(jq -r '.root'  "$SRC")
           round=$(jq -r '.round' "$SRC")
           claims=$(jq -r '.claims | length' "$SRC")
+
+          # Guard: replace null/empty root with zero root
+          if [[ -z "$root" || "$root" == "null" ]]; then
+            root="0x0000000000000000000000000000000000000000000000000000000000000000"
+          fi
       
           echo "root=$root"         >> "$GITHUB_OUTPUT"
           echo "round=$round"       >> "$GITHUB_OUTPUT"
@@ -93,8 +98,8 @@ jobs:
           fi
       
           # Read on-chain state
-          onRoot=$(cast call "$CONTRACT" "merkleRoot()(bytes32)" --rpc-url "$RPC_URL")
-          onRound=$(cast call "$CONTRACT" "round()(uint64)" --rpc-url "$RPC_URL")
+          onRoot=$(cast call "$CONTRACT" "merkleRoot()(bytes32)" --rpc-url "$RPC_URL" --json | jq -r '.')
+          onRound=$(cast call "$CONTRACT" "round()(uint64)" --rpc-url "$RPC_URL" --json | jq -r '.')
           echo "On-chain root:  $onRoot"
           echo "On-chain round: $onRound"
           echo "New root:       $NEW_ROOT"
