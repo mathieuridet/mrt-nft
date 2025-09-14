@@ -33,7 +33,7 @@ export default function StakePage() {
     abi: erc20Abi,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
-    enabled: !!address,
+    query: { enabled: !!address }
   });
 
   const { data: stakedBal } = useReadContract({
