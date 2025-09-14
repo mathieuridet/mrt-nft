@@ -155,6 +155,13 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
       amount: rewardAmount.toString(),
       proof: tree.getHexProof(leaves[i]).map((p) => p as `0x${string}`),
     }));
+
+    // 🔎 Debug: log one leaf vs. tree root
+    for (let i = 0; i < addresses.length; i++) {
+      const leaf = leafHash(addresses[i] as `0x${string}`, rewardAmount, round);
+      console.log(`Leaf[${i}] for ${addresses[i]}:`, leaf);
+    }
+    console.log("Computed Merkle root:", fileRoot);
   }
 
   const payloadStr = JSON.stringify({ round: Number(round), root: fileRoot, claims }, null, 2);
