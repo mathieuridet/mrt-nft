@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Timestamp (UTC)
-        shell: bash
         run: |
           echo "UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -24,99 +23,102 @@ jobs:
         env:
           API_URL: https://mrt-nft.vercel.app/api/rebuild
           REBUILD_TOKEN: ${{ secrets.REBUILD_TOKEN }}
-        shell: bash
         run: |
           set -euo pipefail
-      
           echo "POST $API_URL"
-          # Save headers and body separately; don't use -f so we can read the body on 500s
           curl -sS -X POST "$API_URL" \
             -H "Authorization: Bearer $REBUILD_TOKEN" \
             -H "Content-Type: application/json" \
             --data '{}' \
             -D headers.txt \
-            -o body.txt \
+            -o api_response.json \
             -w "HTTP %{http_code}\n" | tee status.txt
-      
+
           echo "::notice title=Rebuild status::$(cat status.txt)"
-          echo "::notice title=Response headers::$(sed -e 's/%/%25/g' -e 's/\r/%0D/g' -e 's/\n/%0A/g' headers.txt)"
-          echo "::notice title=Response body::$(sed -e 's/%/%25/g' -e 's/\r/%0D/g' -e 's/\n/%0A/g' body.txt)"
-      
+          echo "::notice title=Response headers::$(cat headers.txt)"
+          echo "::notice title=API response::$(cat api_response.json)"
+
           code=$(cut -d' ' -f2 < status.txt)
-          # Fail if 4xx/5xx
           if [[ "$code" -ge 400 ]]; then
             echo "Server returned HTTP $code"
             exit 22
           fi
 
-      # Parse the JSON you already captured to body.txt OR download the blob if your API doesn't return it.
+      - name: Download latest current.json from Blob
+        run: |
+          set -euo pipefail
+          echo "Fetching current.json from Blob..."
+          curl -sS https://1knr7tukuhrzgbyl.public.blob.vercel-storage.com/claims/current.json -o current.json
+          echo "::notice title=Blob current.json::$(cat current.json)"
+
       - name: Extract publish params
         id: merkle
         run: |
           set -euo pipefail
-          # Prefer API response if present; otherwise read a local file you saved or curl the blob
-          SRC="body.txt"
-          if ! jq -e . "$SRC" >/dev/null 2>&1; then
-            echo "No body.txt JSON; ensure you curl your blob current.json to ./current.json"
-            SRC="current.json"
-          fi
-      
-          root=$(jq -r '.root'  "$SRC")
-          round=$(jq -r '.round' "$SRC")
-          claims=$(jq -r '.claims | length' "$SRC")
+          root=$(jq -r '.root' current.json)
+          round=$(jq -r '.round' current.json)
+          claims=$(jq -r '.claims | length' current.json)
 
-          # Guard: replace null/empty root with zero root
+          # Normalize null/empty root → 0x0
           if [[ -z "$root" || "$root" == "null" ]]; then
             root="0x0000000000000000000000000000000000000000000000000000000000000000"
           fi
-      
-          echo "root=$root"         >> "$GITHUB_OUTPUT"
-          echo "round=$round"       >> "$GITHUB_OUTPUT"
+
+          echo "Extracted values:"
+          echo "  root   = $root"
+          echo "  round  = $round"
+          echo "  claims = $claims"
+
+          echo "root=$root"           >> "$GITHUB_OUTPUT"
+          echo "round=$round"         >> "$GITHUB_OUTPUT"
           echo "claims_count=$claims" >> "$GITHUB_OUTPUT"
-      
+
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
-      
+
       - name: Publish setRoot() if needed (idempotent + guards)
         env:
           RPC_URL: ${{ secrets.RPC_URL }}
-          PK: ${{ secrets.PUBLISHER_PRIVATE_KEY }}     # owner (or proxy admin) that can call onlyOwner
+          PK: ${{ secrets.PUBLISHER_PRIVATE_KEY }}
           CONTRACT: ${{ vars.REWARDS_CONTRACT }}
           NEW_ROOT:  ${{ steps.merkle.outputs.root }}
           NEW_ROUND: ${{ steps.merkle.outputs.round }}
           CLAIMS_CT: ${{ steps.merkle.outputs.claims_count }}
         run: |
           set -euo pipefail
-      
+
           # Guard 1: must have a nonzero root
           z64="0x0000000000000000000000000000000000000000000000000000000000000000"
           if [[ "${NEW_ROOT,,}" == "${z64,,}" ]]; then
             echo "Snapshot root is zero (no eligible claims?) — skipping setRoot()."
             exit 0
           fi
-      
-          # Read on-chain state
+
+          # Read on-chain state (raw JSON output)
           onRoot=$(cast call "$CONTRACT" "merkleRoot()(bytes32)" --rpc-url "$RPC_URL" --json | jq -r '.')
           onRound=$(cast call "$CONTRACT" "round()(uint64)" --rpc-url "$RPC_URL" --json | jq -r '.')
           echo "On-chain root:  $onRoot"
           echo "On-chain round: $onRound"
           echo "New root:       $NEW_ROOT"
           echo "New round:      $NEW_ROUND"
-      
-          # Guard 2: do not go backwards in time
+
+          # Guard 2: do not go backwards
           if (( NEW_ROUND < onRound )); then
             echo "Refusing ROUND_BACKWARDS (on-chain=$onRound target=$NEW_ROUND)."
             exit 1
           fi
-      
-          # Idempotency: if both already match, skip
+
+          # Idempotency: already in sync
           if [[ "${onRoot,,}" == "${NEW_ROOT,,}" && "$onRound" == "$NEW_ROUND" ]]; then
             echo "Already up to date — no tx."
             exit 0
           fi
-      
+
           echo "Sending setRoot(bytes32,uint64)…"
-          cast send "$CONTRACT" "setRoot(bytes32,uint64)" "$NEW_ROOT" "$NEW_ROUND" \
-            --private-key "$PK" --rpc-url "$RPC_URL"
+          txhash=$(cast send "$CONTRACT" "setRoot(bytes32,uint64)" "$NEW_ROOT" "$NEW_ROUND" \
+            --private-key "$PK" --rpc-url "$RPC_URL" | tee /dev/stderr | grep -Eo '0x[0-9a-fA-F]{64}' | head -n1)
+
+          echo "Tx hash: $txhash"
+          echo "::notice title=SetRoot tx::$txhash"
