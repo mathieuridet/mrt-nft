@@ -29,9 +29,13 @@ export default function StakePage() {
   const { data: decimals } = useReadContract({ address: TOKEN, abi: erc20Abi, functionName: "decimals" });
 
   const { data: walletBal } = useReadContract({
-    address: TOKEN, abi: erc20Abi, functionName: "balanceOf",
-    args: address ? [address] : undefined, query: { enabled: !!address }
+    address: TOKEN,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    enabled: !!address,
   });
+
   const { data: stakedBal } = useReadContract({
     address: STAKING, abi: stakingViewAbi, functionName: "balanceOf",
     args: address ? [address] : undefined, query: { enabled: !!address }

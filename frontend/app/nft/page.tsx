@@ -37,7 +37,6 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-black text-zinc-200 py-10 px-4">
       <div className="max-w-xl mx-auto">
-        {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl font-extrabold tracking-tight">
             <span className="bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
@@ -49,10 +48,8 @@ export default function Page() {
           </p>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/70 shadow-2xl backdrop-blur-sm">
           <div className="p-5 sm:p-6 space-y-5">
-            {/* Contract info */}
             <div className="space-y-1 text-sm">
               <p className="truncate">
                 <span className="text-zinc-400">Contract:</span>{" "}
@@ -68,7 +65,6 @@ export default function Page() {
               </p>
             </div>
 
-            {/* Minting states */}
             {!isConnected && (
               <EmptyState
                 title="Connect your wallet"
@@ -78,7 +74,6 @@ export default function Page() {
 
             {isConnected && (
               <>
-                {/* Quantity & Mint action */}
                 <div className="grid gap-3 sm:grid-cols-[auto,1fr,auto] items-center">
                   <label
                     htmlFor="qty"
@@ -107,7 +102,6 @@ export default function Page() {
                   </button>
                 </div>
 
-                {/* Cost */}
                 <p className="text-sm text-zinc-400">
                   Total cost:{" "}
                   <span className="font-mono text-zinc-200">
@@ -115,18 +109,12 @@ export default function Page() {
                   </span>
                 </p>
 
-                {/* Connected details */}
                 <div className="pt-3 space-y-2 text-xs text-zinc-500">
-                  <p>
-                    Connected:{" "}
-                    <code className="font-mono">{address}</code>
-                  </p>
                   <p className="text-zinc-400">
                     My NFTs ({(balance ?? 0).toString()})
                   </p>
                 </div>
 
-                {/* NFT grid */}
                 <NFTGrid owner={address} network="eth-sepolia" />
               </>
             )}
