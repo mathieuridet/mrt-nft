@@ -49,8 +49,10 @@ export default function StakePage() {
     args: address ? [address, STAKING] : undefined, query: { enabled: !!address }
   });
 
-  const { writeContract, data: txHash, isPending, error } = useWriteContract();
-  const { isLoading: waiting, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+  const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
+  const { isLoading: waiting, isSuccess, isError, error: txError } = useWaitForTransactionReceipt({
+    hash: txHash,
+  });
 
   const needsApprove =
     !!decimals &&
@@ -207,13 +209,18 @@ export default function StakePage() {
 
                   {/* Success / Error */}
                   {isSuccess && (
-                    <Banner tone="success">
-                      ✅ Transaction confirmed: {txHash?.slice(0, 10)}…
+                    <Banner tone="success">✅ Transaction confirmed: {txHash?.slice(0, 10)}…</Banner>
+                  )}
+
+                  {writeError && (
+                    <Banner tone="error">
+                      <b>Error:</b> {writeError.message}
                     </Banner>
                   )}
-                  {error && (
+
+                  {isError && (
                     <Banner tone="error">
-                      <b>Error:</b> {String(error?.message || error)}
+                      <b>Tx failed:</b> {txError?.message || "Unknown error"}
                     </Banner>
                   )}
                 </div>
