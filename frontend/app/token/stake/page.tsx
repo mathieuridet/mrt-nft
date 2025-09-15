@@ -165,7 +165,6 @@ export default function StakePage() {
                         setAmount(normalized);
                       }
                     }}
-                    inputMode="decimal"
                     inputMode="numeric"
                     pattern="[0-9]*"
                   />
