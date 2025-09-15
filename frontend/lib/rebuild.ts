@@ -17,7 +17,7 @@ type RebuildOptions = {
 type RebuildResult = {
   ok: boolean;
   updated: boolean;
-  reason?: "empty" | "unchanged";
+  reason?: "empty" | "unchanged" | "pushed";
   count: number;
   round: number;
   fileRoot: `0x${string}`;
@@ -31,6 +31,12 @@ type Claim = {
   account: `0x${string}`;
   amount: string;
   proof: `0x${string}`[];
+};
+
+type ProofsPayload = {
+  round: number;
+  root: `0x${string}`;
+  claims: Claim[];
 };
 
 type Hex32 = `0x${string}`;
@@ -54,7 +60,6 @@ function leafHash(account: `0x${string}`, amount: bigint, round: bigint) {
 function toBuf(hex: string) {
   return Buffer.from(hex.slice(2), "hex");
 }
-
 function errorMessage(e: unknown): string {
   if (e instanceof Error) return e.message;
   if (typeof e === "string") return e;
@@ -149,12 +154,6 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
       amount: rewardAmount.toString(),
       proof: tree.getHexProof(leaves[i]).map((p) => p as `0x${string}`),
     }));
-
-    for (let i = 0; i < addresses.length; i++) {
-      const leaf = leafHash(addresses[i] as `0x${string}`, rewardAmount, round);
-      console.log(`Leaf[${i}] for ${addresses[i]}:`, leaf);
-    }
-    console.log("Computed Merkle root:", fileRoot);
   }
 
   const payloadStr = JSON.stringify({ round: Number(round), root: fileRoot, claims }, null, 2);
@@ -172,6 +171,37 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
     }
   }
 
+  // Fetch latest blob content
+  let current: ProofsPayload | undefined;
+  const blobReadHost = process.env.BLOB_READ_HOST ?? "1knr7tukuhrzgbyl.public.blob.vercel-storage.com";
+  try {
+    const res = await fetch(`https://${blobReadHost}/${blobKey}`);
+    if (res.ok) current = await res.json();
+  } catch (e) {
+    warns.push(`Could not fetch current blob: ${errorMessage(e)}`);
+  }
+
+  // Decide if upload is needed
+  if (
+    current &&
+    current.root.toLowerCase() === fileRoot.toLowerCase() &&
+    current.round === Number(round)
+  ) {
+    return {
+      ok: true,
+      updated: false,
+      reason: addresses.length === 0 ? "empty" : "unchanged",
+      count: addresses.length,
+      round: Number(round),
+      fileRoot,
+      onchainRoot,
+      blobUrl: `https://${blobReadHost}/${blobKey}`,
+      localPath,
+      warn: warns.length ? warns : undefined,
+    };
+  }
+
+  let reason: "empty" | "unchanged" | "pushed" = "unchanged";
   try {
     const res = await put(blobKey, payloadStr, {
       access: "public",
@@ -181,6 +211,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
       allowOverwrite: true,
     });
     blobUrl = res.url;
+    reason = "pushed";
   } catch (e) {
     warns.push(`Blob upload failed: ${errorMessage(e)}`);
   }
@@ -192,7 +223,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
   return {
     ok: true,
     updated: needUpdate,
-    reason: addresses.length === 0 ? "empty" : needUpdate ? "unchanged" : "unchanged",
+    reason: addresses.length === 0 ? "empty" : reason,
     count: addresses.length,
     round: Number(round),
     fileRoot,
