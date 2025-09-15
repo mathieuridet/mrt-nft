@@ -144,10 +144,24 @@ export default function StakePage() {
                 <div className="space-y-4 pt-2">
                   <input
                     className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Amount to stake"
+                    placeholder="Amount to (un)stake"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+
+                      if (val === "") {
+                        setAmount("");
+                        return;
+                      }
+
+                      if (/^\d+$/.test(val)) {
+                        const normalized = String(parseInt(val, 10));
+                        setAmount(normalized);
+                      }
+                    }}
                     inputMode="decimal"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                   />
 
                   {needsApprove ? (
@@ -162,7 +176,7 @@ export default function StakePage() {
                   ) : (
                     <button
                       onClick={doStake}
-                      disabled={isPending || waiting}
+                      disabled={amount == 0 || isPending || waiting}
                       className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60 bg-gradient-to-r from-indigo-500 to-fuchsia-600 hover:from-indigo-400 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
                       aria-busy={waiting || isPending}
                     >
@@ -173,14 +187,14 @@ export default function StakePage() {
                   <div className="flex gap-3">
                     <button
                       onClick={doUnstake}
-                      disabled={isPending || waiting}
+                      disabled={stakedBal == 0 || amount == 0 || isPending || waiting}
                       className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
                     >
                       Unstake
                     </button>
                     <button
                       onClick={doClaim}
-                      disabled={isPending || waiting}
+                      disabled={earned == 0 || isPending || waiting}
                       className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
                     >
                       Claim rewards
