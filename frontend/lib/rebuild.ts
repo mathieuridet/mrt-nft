@@ -33,12 +33,6 @@ type Claim = {
   proof: `0x${string}`[];
 };
 
-type ProofsPayload = {
-  round: number;
-  root: `0x${string}`;
-  claims: Claim[];
-};
-
 type Hex32 = `0x${string}`;
 
 const DIST_ABI = [

@@ -5,7 +5,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import type { Abi } from "viem";
 import StakingAbi from "@/abi/SimpleStakingVault.json";
 import { formatUnits, parseUnits } from "viem";
-import { EmptyState, Spinner, StatusBadge, Stat, Banner, SkeletonBlock } from "@/app/components/Helpers";
+import { EmptyState, Stat, Banner } from "@/app/components/Helpers";
 
 const STAKING = process.env.NEXT_PUBLIC_STAKING_ADDRESS as `0x${string}`;
 const TOKEN   = process.env.NEXT_PUBLIC_TOKEN_ADDRESS as `0x${string}`;
@@ -181,7 +181,7 @@ export default function StakePage() {
                   ) : (
                     <button
                       onClick={doStake}
-                      disabled={amount == 0 || isPending || waiting}
+                      disabled={Number(amount) === 0 || isPending || waiting}
                       className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60 bg-gradient-to-r from-indigo-500 to-fuchsia-600 hover:from-indigo-400 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
                       aria-busy={waiting || isPending}
                     >
@@ -192,14 +192,14 @@ export default function StakePage() {
                   <div className="flex gap-3">
                     <button
                       onClick={doUnstake}
-                      disabled={stakedBal == 0 || amount == 0 || isPending || waiting}
+                      disabled={(stakedBal ?? 0n) === 0n || Number(amount) === 0 || isPending || waiting}
                       className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
                     >
                       Unstake
                     </button>
                     <button
                       onClick={doClaim}
-                      disabled={earned == 0 || isPending || waiting}
+                      disabled={(earned ?? 0n) === 0n || isPending || waiting}
                       className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
                     >
                       Claim rewards
