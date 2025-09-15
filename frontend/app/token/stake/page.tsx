@@ -28,7 +28,7 @@ export default function StakePage() {
 
   const { data: decimals } = useReadContract({ address: TOKEN, abi: erc20Abi, functionName: "decimals" });
 
-  const { data: walletBal } = useReadContract({
+  const { data: walletBal, refetch: refetchWallet } = useReadContract({
     address: TOKEN,
     abi: erc20Abi,
     functionName: "balanceOf",
@@ -36,11 +36,11 @@ export default function StakePage() {
     query: { enabled: !!address }
   });
 
-  const { data: stakedBal } = useReadContract({
+  const { data: stakedBal, refetch: refetchStaked } = useReadContract({
     address: STAKING, abi: stakingViewAbi, functionName: "balanceOf",
     args: address ? [address] : undefined, query: { enabled: !!address }
   });
-  const { data: earned } = useReadContract({
+  const { data: earned, refetch: refetchEarned } = useReadContract({
     address: STAKING, abi: stakingViewAbi, functionName: "earned",
     args: address ? [address] : undefined, query: { enabled: !!address, refetchInterval: 5000 }
   });
@@ -53,6 +53,14 @@ export default function StakePage() {
   const { isLoading: waiting, isSuccess, isError, error: txError } = useWaitForTransactionReceipt({
     hash: txHash,
   });
+
+  React.useEffect(() => {
+  if (isSuccess) {
+    refetchWallet();
+    refetchStaked();
+    refetchEarned();
+  }
+}, [isSuccess]);
 
   const needsApprove =
     !!decimals &&
