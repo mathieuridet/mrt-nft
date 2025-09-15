@@ -118,7 +118,11 @@ export default function StakePage() {
                     label="Wallet"
                     value={
                       decimals != null
-                        ? `${formatUnits(walletBal ?? 0n, Number(decimals))} MRT`
+                        ? `${Number(formatUnits(walletBal ?? 0n, Number(decimals)))
+                            .toLocaleString(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 3,
+                            })} MRT`
                         : "…"
                     }
                   />
