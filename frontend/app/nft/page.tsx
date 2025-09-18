@@ -1,6 +1,6 @@
 "use client";
-import { useState, useMemo } from "react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useEffect, useState, useMemo } from "react";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import abi from "../../abi/MRTNFToken.json";
 import NFTGrid from "../components/NFTGrid";
 import { EmptyState } from "@/app/components/Helpers";
@@ -13,14 +13,28 @@ export default function Page() {
   const { data: price } = useReadContract({ address: addr, abi, functionName: "mintPrice" });
   const { data: max } = useReadContract({ address: addr, abi, functionName: "MAX_SUPPLY" });
   const { data: supply } = useReadContract({ address: addr, abi, functionName: "totalSupply" });
-  const { writeContractAsync, isPending } = useWriteContract();
-  const { data: balance } = useReadContract({
+
+  const { writeContractAsync, data: txHash } = useWriteContract();
+  const { isLoading: isPending, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+
+  const { data: balance, refetch: refetchBalance } = useReadContract({
       address: addr,
       abi,
       functionName: "balanceOf",
       args: [address as `0x${string}`],
       query: { enabled: !!address && isConnected },
     });
+
+  const [nftRefreshKey, setNftRefreshKey] = useState(0);
+
+  useEffect(() => {
+    if (isSuccess) {
+      // Refetch balance
+      refetchBalance();
+      // Force NFTGrid to reload by changing its key
+      setNftRefreshKey((k) => k + 1);
+    }
+  }, [isSuccess, refetchBalance]);
 
   const cost = useMemo(() => price ? (BigInt(price as string) * BigInt(qty)).toString() : "0", [price, qty]);
 
@@ -115,7 +129,7 @@ export default function Page() {
                   </p>
                 </div>
 
-                <NFTGrid owner={address} network="eth-sepolia" />
+                <NFTGrid key={nftRefreshKey} owner={address} network="eth-sepolia" />
               </>
             )}
           </div>
