@@ -131,7 +131,8 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
   const minters = new Set<string>();
   for (const log of logs) {
     const to = ethers.getAddress(("0x" + log.topics[2].slice(26)) as `0x${string}`);
-    minters.add(to.toLowerCase());
+    //minters.add(to.toLowerCase());
+    minters.add(to);
   }
 
   const round = BigInt(Math.floor(Date.now() / 1000 / 3600));
@@ -150,7 +151,7 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
     const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
     fileRoot = ("0x" + tree.getRoot().toString("hex")) as Hex32;
     claims = addresses.map((account, i) => ({
-      account: account as `0x${string}`,
+      account: ethers.getAddress(account) as `0x${string}`,
       amount: rewardAmount.toString(),
       proof: tree.getHexProof(leaves[i]).map((p) => p as `0x${string}`),
     }));

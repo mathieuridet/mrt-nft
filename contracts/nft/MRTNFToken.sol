@@ -17,6 +17,10 @@ contract MRTNFToken is ERC721Royalty, Ownable, ReentrancyGuard, Pausable {
     uint256 private _nextId = 1;
     bool public saleActive = true;
 
+    // --- Mint cooldown ---
+    uint256 public constant MINT_INTERVAL = 1 hours;
+    mapping(address => uint256) public lastMint; // wallet → last timestamp
+
     event SaleActiveSet(bool active);
 
     constructor(address initialOwner, 
@@ -46,6 +50,9 @@ contract MRTNFToken is ERC721Royalty, Ownable, ReentrancyGuard, Pausable {
         require(totalSupply() + quantity <= MAX_SUPPLY, "MAX_SUPPLY");
         uint256 cost = mintPrice * quantity;        
         require(msg.value >= cost, "INSUFFICIENT_ETH");
+
+        // enforce cooldown
+        require(block.timestamp >= lastMint[msg.sender] + MINT_INTERVAL, "MINT_TOO_SOON");
 
         for (uint256 i = 0; i < quantity; i++) {
             _safeMint(msg.sender, _nextId++);

@@ -243,21 +243,6 @@ export default function ClaimPage() {
                     <b>Error:</b> {getErrorMessage(error)}
                   </Banner>
                 )}
-
-                {/* Debug details (collapsible) */}
-                <details className="group rounded-xl border border-zinc-800 bg-zinc-900/70 p-4 text-sm open:bg-zinc-900">
-                  <summary className="cursor-pointer select-none font-medium text-zinc-200 marker:hidden outline-none">
-                    <span className="inline-flex items-center gap-2">
-                      <svg viewBox="0 0 20 20" fill="currentColor" className="size-4 text-zinc-400 group-open:rotate-90 transition-transform">
-                        <path fillRule="evenodd" d="M6.22 7.22a.75.75 0 011.06 0L10 9.94l2.72-2.72a.75.75 0 111.06 1.06L10.53 11.53a.75.75 0 01-1.06 0L6.22 8.28a.75.75 0 010-1.06z" clipRule="evenodd" />
-                      </svg>
-                      Show claim entry (debug)
-                    </span>
-                  </summary>
-                  <pre className="mt-3 whitespace-pre-wrap overflow-auto bg-black/60 p-3 rounded-lg border border-zinc-800 text-xs text-zinc-300">
-  {JSON.stringify(entry, null, 2)}
-                  </pre>
-                </details>
               </>
             )}
           </div>

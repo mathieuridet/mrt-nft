@@ -1,7 +1,7 @@
 {
   "name": "Artwork #3",
-  "description": "Original artwork #3. Stored on IPFS. CID folder: bafybeifaivbg3kytnxwutq6notntyzicjp2yu3waaubsmafhwmx3twblnu.",
-  "image": "ipfs://bafybeifaivbg3kytnxwutq6notntyzicjp2yu3waaubsmafhwmx3twblnu/3.png",
+  "description": "Original artwork #3. Stored on IPFS.",
+  "image": "ipfs://bafybeifvu3hjp4k4a2qz772cn3nibuum4g2pi2gzhjqodlhwycifdm6hqa/3.png",
   "attributes": [
     {
       "trait_type": "Format",

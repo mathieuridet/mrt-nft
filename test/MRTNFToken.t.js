@@ -131,4 +131,25 @@ describe("MRTNFToken", function () {
     expect(receiver).to.equals(owner.address);
     expect(amount).to.equals(salePrice * 500n / 10000n);
   });
+
+   it("enforces 1 mint per wallet per hour", async () => {
+    const { nft, user, mintPriceWei } = await loadFixture(deployFixture);
+
+    // First mint works
+    await expect(nft.connect(user).mint(1, { value: mintPriceWei }))
+      .to.emit(nft, "Transfer");
+
+    // Immediate second mint should revert
+    await expect(nft.connect(user).mint(1, { value: mintPriceWei }))
+      .to.be.revertedWith("MINT_TOO_SOON");
+
+    // Fast forward 1 hour
+    await ethers.provider.send("evm_increaseTime", [3600]); // add 3600 seconds
+    await ethers.provider.send("evm_mine", []);             // mine a block
+
+    // Now it works again
+    await expect(nft.connect(user).mint(1, { value: mintPriceWei }))
+      .to.emit(nft, "Transfer");
+  });
+
 });
