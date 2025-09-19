@@ -13,7 +13,7 @@ export default function Page() {
   const { data: price } = useReadContract({ address: addr, abi, functionName: "mintPrice" });
   const { data: max } = useReadContract({ address: addr, abi, functionName: "MAX_SUPPLY" });
   const { data: supply } = useReadContract({ address: addr, abi, functionName: "totalSupply" });
-
+  
   const { writeContractAsync, data: txHash } = useWriteContract();
   const { isLoading: isPending, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
@@ -27,6 +27,24 @@ export default function Page() {
 
   const [nftRefreshKey, setNftRefreshKey] = useState(0);
 
+  // Retrieve data to determine if eligible to mint or not (ie still in cooldown or not)
+  const { data: lastMint } = useReadContract({
+    address: addr,
+    abi,
+    functionName: "lastMint",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });  
+  const lastMintTs = lastMint ? Number(lastMint) : 0;
+
+  const { data: mintIntervalRaw } = useReadContract({
+    address: addr,
+    abi,
+    functionName: "MINT_INTERVAL",
+  });
+  const mintInterval = mintIntervalRaw ? Number(mintIntervalRaw) : 0;
+  const canMint = !lastMintTs || (Date.now() / 1000 - lastMintTs) >= mintInterval;
+  
   useEffect(() => {
     if (isSuccess) {
       // Refetch balance
@@ -107,10 +125,11 @@ export default function Page() {
                     className="w-24 rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-right font-mono text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
                   />
                   <button
-                    disabled={!price || isPending}
+                    disabled={!price || isPending || !canMint}
                     onClick={onMint}
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60 bg-gradient-to-r from-indigo-500 to-fuchsia-600 hover:from-indigo-400 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
                     aria-busy={isPending}
+                    title={!canMint ? "You can mint only once per hour" : "Mint a new NFT"}
                   >
                     {isPending ? "Minting…" : `Mint ${qty}`}
                   </button>
