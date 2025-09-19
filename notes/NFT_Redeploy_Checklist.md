@@ -26,6 +26,12 @@ This file is a step-by-step guide for redeploying the MRTNFT contract when updat
   ```bash
   npx hardhat verify --network sepolia <contractAddress> <ownerAddress> "ipfs://<metadataCID>/" <maxSupply> <mintPriceInWei:2000000000000000000> <royaltyReceiver> <royaltyBps:500>
   ```
+- Regenerate the ABI:
+  Execute the following in project's root
+  ```bash
+  npx hardhat compile
+  cp artifacts/contracts/nft/MRTNFToken.sol/MRTNFToken.json frontend/abi/MRTNFToken.json
+  ``` 
 - [ ] Note the new contract address.
 
 ---

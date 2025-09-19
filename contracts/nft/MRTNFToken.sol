@@ -58,6 +58,9 @@ contract MRTNFToken is ERC721Royalty, Ownable, ReentrancyGuard, Pausable {
             _safeMint(msg.sender, _nextId++);
         }
 
+        // update last mint timestamp for this wallet
+        lastMint[msg.sender] = block.timestamp;
+
         uint256 refund = msg.value - cost;
         if (refund > 0) {
             (bool ok, ) = msg.sender.call{value: refund}("");
