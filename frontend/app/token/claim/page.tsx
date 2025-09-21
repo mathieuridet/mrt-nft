@@ -13,7 +13,7 @@ import {
 } from "viem";
 import DistributorAbi from "@/abi/MerkleDistributor.json";
 import { BaseError } from "viem";
-import { EmptyState, Spinner, StatusBadge, Stat, Banner, SkeletonBlock } from "@/app/components/Helpers";
+import { EmptyState, Spinner, Stat, Banner, SkeletonBlock } from "@/app/components/Helpers";
 
 function fmtAmount(base: string, decimals: number, maxFrac = 6): string {
   const s = formatUnits(BigInt(base), decimals);
@@ -81,20 +81,12 @@ export default function ClaimPage() {
     })();
   }, []);
 
-  // Pick my entry
-  React.useEffect(() => {
-    if (!address || !proofs) { setEntry(null); return; }
-    const me = proofs.claims.find(c => c.account.toLowerCase() === address.toLowerCase()) || null;
-    console.log("[claim] connected:", address, "→ entry:", me ? { ...me, proofLen: me.proof.length } : null);
-    setEntry(me);
-  }, [address, proofs]);
-
   // On-chain reads
   const { data: decimals } = useReadContract({ address: TOKEN, abi: erc20Abi, functionName: "decimals" });
   const { data: onchainRoot } = useReadContract({
     address: DISTRIBUTOR, abi: DistributorAbi as Abi, functionName: "merkleRoot",
   });
-  const { data: claimed } = useReadContract({
+  const { data: isClaimed, refetch: refetchIsClaimed } = useReadContract({
     address: DISTRIBUTOR,
     abi: DistributorAbi as Abi,
     functionName: "isClaimed",
@@ -134,6 +126,17 @@ export default function ClaimPage() {
     return addr.length > left + right + 2 ? `${addr.slice(0, left)}…${addr.slice(-right)}` : addr;
   }
 
+  React.useEffect(() => {
+    if (!address || !proofs) { setEntry(null); return; }
+    const me = proofs.claims.find(c => c.account.toLowerCase() === address.toLowerCase()) || null;
+    console.log("[claim] connected:", address, "→ entry:", me ? { ...me, proofLen: me.proof.length } : null);
+    setEntry(me);
+
+    if(isSuccess) {
+      refetchIsClaimed();
+    }
+  }, [address, proofs, isSuccess, refetchIsClaimed]);
+
   return (
     <div className="min-h-screen bg-black text-zinc-200 py-10 px-4">
       <div className="max-w-xl mx-auto">
@@ -164,22 +167,6 @@ export default function ClaimPage() {
                   <span className="font-medium text-zinc-300">Wallet not connected</span>
                 )}
               </span>
-
-              <StatusBadge
-                status={
-                  !address
-                    ? "idle"
-                    : !proofs
-                    ? "loading"
-                    : !entry
-                    ? "not_eligible"
-                    : claimed
-                    ? "claimed"
-                    : (waiting || isPending)
-                    ? "claiming"
-                    : "ready"
-                }
-              />
             </div>
 
             {/* Content states */}
@@ -208,7 +195,7 @@ export default function ClaimPage() {
                   <Stat
                     label="Status"
                     value={
-                      claimed
+                      isClaimed
                         ? "Already claimed"
                         : (waiting || isPending)
                         ? "Claiming…"
@@ -221,12 +208,12 @@ export default function ClaimPage() {
                 <div className="flex items-center gap-3 pt-2">
                   <button
                     onClick={claim}
-                    disabled={!!claimed || isPending || waiting}
+                    disabled={!!isClaimed || isPending || waiting}
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60 bg-gradient-to-r from-indigo-500 to-fuchsia-600 hover:from-indigo-400 hover:to-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/60"
                     aria-busy={waiting || isPending}
                   >
                     {(waiting || isPending) && <Spinner />}
-                    {claimed ? "Claimed" : "Claim"}
+                    {isClaimed ? "Claimed" : "Claim"}
                   </button>
 
                   <p className="text-xs text-zinc-500">

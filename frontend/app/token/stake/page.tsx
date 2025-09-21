@@ -60,7 +60,7 @@ export default function StakePage() {
     refetchStaked();
     refetchEarned();
   }
-}, [isSuccess]);
+}, [isSuccess, refetchWallet, refetchStaked, refetchEarned]);
 
   const needsApprove =
     !!decimals &&
