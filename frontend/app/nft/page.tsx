@@ -28,7 +28,7 @@ export default function Page() {
   const [nftRefreshKey, setNftRefreshKey] = useState(0);
 
   // Retrieve data to determine if eligible to mint or not (ie still in cooldown or not)
-  const { data: lastMint } = useReadContract({
+  const { data: lastMint, refresh: refreshLastMint } = useReadContract({
     address: addr,
     abi,
     functionName: "lastMint",
@@ -47,8 +47,9 @@ export default function Page() {
   
   useEffect(() => {
     if (isSuccess) {
-      // Refetch balance
       refetchBalance();
+      refreshLastMint();
+
       // Force NFTGrid to reload by changing its key
       setNftRefreshKey((k) => k + 1);
     }

@@ -46,6 +46,7 @@ const DIST_ABI = [
   "function merkleRoot() view returns (bytes32)",
   "function round() view returns (uint64)",
   "function rewardAmount() view returns (uint256)",
+  "function setRoot(bytes32 newRoot, uint64 newRound) external",
 ] as const;
 
 const TRANSFER_SIG = ethers.id("Transfer(address,address,uint256)");
@@ -221,6 +222,21 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
     fileRoot.toLowerCase() !== (onchainRoot as string).toLowerCase() ||
     round > onchainRound;
 
+  let txHash: string | undefined;
+  if (needUpdate && process.env.PUBLISHER_PRIVATE_KEY) {
+    try {
+      const wallet = new ethers.Wallet(process.env.PUBLISHER_PRIVATE_KEY, provider);
+      const distWithSigner = new Contract(distributor, DIST_ABI, wallet);
+      const tx = await distWithSigner.setRoot(fileRoot, round);
+      const receipt = await tx.wait();
+      txHash = receipt.transactionHash;
+    } catch (e) {
+      warns.push(`On-chain setRoot failed: ${errorMessage(e)}`);
+    }
+  } else if (needUpdate) {
+    warns.push("setRoot needed but no PUBLISHER_PRIVATE_KEY provided — skipping on-chain update");
+  }
+
   return {
     ok: true,
     updated: needUpdate,
@@ -232,5 +248,6 @@ export async function rebuildAndPush(opts: RebuildOptions = {}): Promise<Rebuild
     blobUrl,
     localPath,
     warn: warns.length ? warns : undefined,
+    ...(txHash ? { txHash } : {}),
   };
 }

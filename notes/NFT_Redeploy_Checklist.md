@@ -51,3 +51,11 @@ This file is a step-by-step guide for redeploying the MRTNFT contract when updat
   - GitHub Actions workflow vars (`vars` section).
   - Vercel env vars (`NEXT_PUBLIC_NFT_ADDRESS`).
 - [ ] Redeploy or trigger rebuild workflow.
+
+---
+
+## 5. Alchemy Webhook
+- [ ] Update webhook content by replacing the address with the new one
+- [ ] Update `ALCHEMY_SIGNING_KEY` in Vercel env vars
+
+
