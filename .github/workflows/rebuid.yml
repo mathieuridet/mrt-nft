@@ -56,7 +56,7 @@ jobs:
         run: |
           set -euo pipefail
           root=$(jq -r '.root' current.json)
-          round=$(jq -r '.round' current.json)
+          round=$(jq -r '.round | tonumber' current.json)
           claims=$(jq -r '.claims | length' current.json)
 
           # Normalize null/empty root → 0x0
@@ -105,8 +105,11 @@ jobs:
           echo "New round:      $NEW_ROUND"
 
           # Guard 2: do not go backwards
-          if (( NEW_ROUND < onRound )); then
-            echo "Refusing ROUND_BACKWARDS (on-chain=$onRound target=$NEW_ROUND)."
+          NEW_ROUND_NUM=$(echo "$NEW_ROUND" | tr -d '"[]')
+          ON_ROUND_NUM=$(echo "$onRound" | tr -d '"[]')
+          
+          if (( NEW_ROUND_NUM < ON_ROUND_NUM )); then
+            echo "Refusing ROUND_BACKWARDS (on-chain=$ON_ROUND_NUM target=$NEW_ROUND_NUM)."
             exit 1
           fi
 
