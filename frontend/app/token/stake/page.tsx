@@ -140,7 +140,11 @@ export default function StakePage() {
                     label="Staked"
                     value={
                       decimals != null
-                        ? `${formatUnits(stakedBal ?? 0n, Number(decimals))} MRT`
+                        ? `${Number(formatUnits(stakedBal ?? 0n, Number(decimals)))
+                            .toLocaleString(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 3,
+                            })} MRT`
                         : "…"
                     }
                   />
@@ -148,7 +152,11 @@ export default function StakePage() {
                     label="Earned"
                     value={
                       decimals != null
-                        ? `${formatUnits(earned ?? 0n, Number(decimals))} MRT`
+                        ? `${Number(formatUnits(earned ?? 0n, Number(decimals)))
+                            .toLocaleString(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 3,
+                            })} MRT`
                         : "…"
                     }
                   />
