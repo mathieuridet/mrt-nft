@@ -9,14 +9,23 @@ The **MRT dApp** is a decentralized application where users can mint NFTs, claim
 ## ✨ Features
 
 - **NFT Minting**  
-  Mint one NFT every hour. Each NFT represents eligibility for rewards.  
+  Mint one NFT every hour. Each NFT represents eligibility for rewards.
+  <br><br/>
+  <img width="1440" height="784" alt="Screenshot 2025-09-25 at 21 16 05" src="https://github.com/user-attachments/assets/49790a5b-3a49-4a6c-8765-6d91961bcd76" />
+  <br><br/>
 
 - **Claim Rewards**  
-  Claim ERC20 MRT tokens within one hour of minting. Rewards are distributed fairly using Merkle proofs.  
+  Claim ERC20 MRT tokens within one hour of minting. Rewards are distributed fairly using Merkle proofs.
+  <br><br/>
+  <img width="1440" height="784" alt="Screenshot 2025-09-25 at 21 18 39" src="https://github.com/user-attachments/assets/f81dac61-e580-403f-ab5a-5998352a1195" />
+  <br><br/>
 
 - **Staking**  
   Stake your MRT tokens to earn additional rewards over time.  
-  Unstake partially or fully whenever you like.  
+  Unstake partially or fully whenever you like.
+  <br><br/>
+  <img width="1440" height="784" alt="Screenshot 2025-09-25 at 21 16 42" src="https://github.com/user-attachments/assets/6a6425d0-6413-47e5-b84c-abf7cd1493d7" />
+  <br><br/>
 
 ---
 
@@ -30,6 +39,9 @@ The **MRT dApp** is a decentralized application where users can mint NFTs, claim
 ---
 
 ## 🏗 Architecture & Tech Stack
+
+![WhatsApp Image 2025-09-24 at 13 15 35](https://github.com/user-attachments/assets/5e935505-eb62-45ee-8295-5997b022308d)
+<br/>
 
 **Smart Contracts**
 - **NFT Contract [`0xf4122cE080299FcDb6B72E007F55608E05dCf501`]** – hourly minting, eligibility for rewards.
