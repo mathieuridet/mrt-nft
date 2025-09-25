@@ -153,7 +153,6 @@ export default function Page() {
                           key={nftRefreshKey}
                           owner={address}
                           network="eth-sepolia"
-                          layout="row" // <-- if your NFTGrid supports custom layout
                         />
                       </div>
                     </div>
