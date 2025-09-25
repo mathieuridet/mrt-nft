@@ -108,10 +108,7 @@ export default function Page() {
             {isConnected && (
               <>
                 <div className="grid gap-3 sm:grid-cols-[auto,1fr,auto] items-center">
-                  <label
-                    htmlFor="qty"
-                    className="text-sm text-zinc-400"
-                  >
+                  <label htmlFor="qty" className="text-sm text-zinc-400">
                     Quantity
                   </label>
                   <input
@@ -147,9 +144,43 @@ export default function Page() {
                   <p className="text-zinc-400">
                     My NFTs ({(balance ?? 0).toString()})
                   </p>
-                </div>
 
-                <NFTGrid key={nftRefreshKey} owner={address} network="eth-sepolia" />
+                  {/* Horizontally scrollable NFT grid */}
+                  <div className="relative">
+                    <div className="overflow-x-auto">
+                      <div className="flex gap-3 pb-2">
+                        <NFTGrid
+                          key={nftRefreshKey}
+                          owner={address}
+                          network="eth-sepolia"
+                          layout="row" // <-- if your NFTGrid supports custom layout
+                        />
+                      </div>
+                    </div>
+
+                    {/* Optional scroll buttons */}
+                    <div className="absolute inset-y-0 left-0 flex items-center">
+                      <button
+                        onClick={() => {
+                          document.querySelector(".overflow-x-auto")?.scrollBy({ left: -200, behavior: "smooth" });
+                        }}
+                        className="p-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700"
+                      >
+                        ◀
+                      </button>
+                    </div>
+                    <div className="absolute inset-y-0 right-0 flex items-center">
+                      <button
+                        onClick={() => {
+                          document.querySelector(".overflow-x-auto")?.scrollBy({ left: 200, behavior: "smooth" });
+                        }}
+                        className="p-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700"
+                      >
+                        ▶
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </div>
@@ -157,5 +188,7 @@ export default function Page() {
       </div>
     </div>
   );
+
+
 
 }
